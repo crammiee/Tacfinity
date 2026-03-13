@@ -65,6 +65,6 @@ npm run lint     # Run ESLint
 npm run format   # Run Prettier
 ```
 
-## Deployment
+## Live Demo
 
-This project is a static site. Push to GitHub and connect to [Vercel](https://vercel.com) — it auto-detects Vite and deploys on every push.
+[https://tictacprox.vercel.app](https://tictacprox.vercel.app)
