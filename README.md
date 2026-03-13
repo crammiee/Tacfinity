@@ -1,4 +1,4 @@
-# TacToeX
+# TicTacPro
 
 A customizable Tic Tac Toe game with a smart AI opponent. Play on any grid size up to 20×20, set your own win condition, and challenge an AI that scales from easy to unbeatable.
 
