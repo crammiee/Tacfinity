@@ -1,70 +1,80 @@
 # Tacfinity
 
-A customizable Tic Tac Toe game with a smart AI opponent. Play on any grid size up to 20×20, set your own win condition, and challenge an AI that scales from easy to unbeatable.
+Online multiplayer Tic Tac Toe platform — rooms, real-time gameplay, ELO ratings, and offline bot support.
 
-## Features
+## Prerequisites
 
-- **Custom board sizes** — any grid from 3×3 up to 20×20
-- **Custom win condition** — set how many in a row to win
-- **2 Player mode** — local hotseat
-- **vs AI mode** — three difficulty levels
-  - Easy — mostly random with occasional smart moves
-  - Medium — depth-3 minimax search
-  - Hard — adaptive minimax (perfect play on small boards, heuristic search on large ones) with fork detection
-- **Score tracking** across rounds
+- [Node.js](https://nodejs.org) v18+
+- [pnpm](https://pnpm.io) v9+ — `npm install -g pnpm`
+- [Docker](https://docs.docker.com/get-docker/) — for the local Postgres database
+
+## Quick Setup
+
+```bash
+# 1. Install dependencies
+pnpm install
+
+# 2. Copy env files
+cp apps/api/.env.example apps/api/.env
+
+# 3. Start the database
+docker compose up -d
+
+# 4. Run migrations
+pnpm --filter @tacfinity/api exec prisma migrate dev
+
+# 5. Start everything
+pnpm dev
+```
+
+| Service | URL |
+|---|---|
+| Web (Vite) | http://localhost:5173 |
+| API (Express) | http://localhost:3001 |
+| Health check | http://localhost:3001/health |
+
+## Monorepo Structure
+
+```
+apps/
+├── web/          # React + Vite + Tailwind + shadcn/ui
+└── api/          # Express + Prisma + Socket.io
+packages/
+└── shared/       # Zod schemas, game logic, AI engine — used by both apps
+```
+
+## Common Commands
+
+```bash
+pnpm dev                              # run all dev servers in parallel
+pnpm build                            # build all packages
+pnpm --filter @tacfinity/web dev      # web only
+pnpm --filter @tacfinity/api dev      # api only
+pnpm --filter @tacfinity/shared test  # run shared package tests
+pnpm -r test                          # run all tests
+```
+
+## Adding a shadcn/ui Component
+
+```bash
+pnpm --filter @tacfinity/web dlx shadcn@latest add button
+```
+
+Components are placed in `apps/web/src/shared/ui/`.
 
 ## Tech Stack
 
-- **TypeScript** — strict mode, fully typed
-- **Vite** — dev server and build tool
-- **Vanilla DOM** — no framework, component-based architecture
-- **ESLint + Prettier** — enforced code style
+| Area | Tech |
+|---|---|
+| Frontend | React 19, Vite 8, Tailwind CSS v4, shadcn/ui |
+| State | TanStack Query, Zustand, React Router v7 |
+| Backend | Express 5, TypeScript, Socket.io |
+| Database | PostgreSQL via Prisma |
+| Validation | Zod (shared between FE and BE) |
+| Testing | Vitest, Playwright, Supertest |
+| Package manager | pnpm workspaces |
 
-## Project Structure
+## Docs
 
-```
-src/
-├── types.ts               # Shared types (Player, Cell, GameSettings, etc.)
-├── main.ts                # Entry point, dependency wiring
-├── styles/                # CSS split by concern
-├── game/
-│   ├── GameState.ts       # Single source of truth for all game data
-│   ├── WinDetector.ts     # Win and draw detection
-│   └── GameController.ts  # Game flow orchestration
-├── ai/
-│   ├── AIPlayer.ts        # Abstract base class
-│   ├── EasyAI.ts
-│   ├── MediumAI.ts
-│   ├── HardAI.ts
-│   ├── AIFactory.ts       # Creates the right AI by difficulty
-│   ├── BoardEvaluator.ts  # Position scoring and candidate moves
-│   ├── MinimaxEngine.ts   # Pure minimax (small boards)
-│   └── HeuristicEngine.ts # Candidate-filtered minimax (large boards)
-└── components/
-    ├── Board.ts            # Grid rendering
-    ├── SetupPanel.ts       # Setup UI and input validation
-    └── StatusBar.ts        # Scores, badges, messages
-```
-
-## Getting Started
-
-```bash
-npm install
-npm run dev
-```
-
-Open [http://localhost:5173](http://localhost:5173)
-
-## Scripts
-
-```bash
-npm run dev      # Start dev server
-npm run build    # Type-check and build for production
-npm run preview  # Preview production build locally
-npm run lint     # Run ESLint
-npm run format   # Run Prettier
-```
-
-## Live Demo
-
-[https://tacfinity.vercel.app/](https://tacfinity.vercel.app/)
+- `refdocs/api-patterns.md` — API and socket event contracts (read before touching routes)
+- `refdocs/clean-code-practices.md` — naming, structure, and style rules (read before writing code)
