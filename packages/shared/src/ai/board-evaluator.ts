@@ -1,5 +1,5 @@
 import type { Cell, Player } from '../types';
-import type { WinDetector } from '../game/WinDetector';
+import type { WinDetector } from '../game-logic/win-detector';
 
 const DIRECTIONS: readonly [number, number][] = [
   [1, 0],
@@ -166,22 +166,40 @@ export class BoardEvaluator {
     if (count === wl) return 1_000_000;
     if (count === wl - 1)
       return openEnds === 2
-        ? isOpponent ? 80_000 : 50_000
+        ? isOpponent
+          ? 80_000
+          : 50_000
         : openEnds === 1
-          ? isOpponent ? 15_000 : 10_000
-          : isOpponent ? 200 : 100;
+          ? isOpponent
+            ? 15_000
+            : 10_000
+          : isOpponent
+            ? 200
+            : 100;
     if (count === wl - 2)
       return openEnds === 2
-        ? isOpponent ? 3_000 : 2_000
+        ? isOpponent
+          ? 3_000
+          : 2_000
         : openEnds === 1
-          ? isOpponent ? 700 : 500
-          : isOpponent ? 15 : 10;
+          ? isOpponent
+            ? 700
+            : 500
+          : isOpponent
+            ? 15
+            : 10;
     if (count === wl - 3)
       return openEnds === 2
-        ? isOpponent ? 300 : 200
+        ? isOpponent
+          ? 300
+          : 200
         : openEnds === 1
-          ? isOpponent ? 70 : 50
-          : isOpponent ? 8 : 5;
+          ? isOpponent
+            ? 70
+            : 50
+          : isOpponent
+            ? 8
+            : 5;
     return count * 3;
   }
 
@@ -203,11 +221,7 @@ export class BoardEvaluator {
     return score;
   }
 
-  private _countWinningMoves(
-    board: Cell[],
-    player: Player,
-    winDetector: WinDetector
-  ): number {
+  private _countWinningMoves(board: Cell[], player: Player, winDetector: WinDetector): number {
     let count = 0;
     for (let j = 0; j < board.length; j++) {
       if (!board[j]) {
