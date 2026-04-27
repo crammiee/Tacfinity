@@ -1,0 +1,117 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum RoomType {
+  CASUAL
+  RANKED
+}
+
+enum RoomStatus {
+  WAITING
+  IN_GAME
+  FINISHED
+}
+
+enum GameStatus {
+  IN_PROGRESS
+  FINISHED
+  ABANDONED
+}
+
+enum PlayerRole {
+  PLAYER
+  SPECTATOR
+}
+
+enum PlayerSymbol {
+  X
+  O
+}
+
+model User {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  rating       Int      @default(1000)
+  createdAt    DateTime @default(now()) @map("created_at")
+  lastActiveAt DateTime @default(now()) @map("last_active_at")
+
+  hostedRooms Room[]       @relation("RoomHost")
+  roomPlayers RoomPlayer[]
+  gamePlayers GamePlayer[]
+  wonGames    Game[]       @relation("GameWinner")
+
+  @@index([rating(sort: Desc)])
+  @@map("users")
+}
+
+model Room {
+  id           String     @id @default(cuid())
+  code         String     @unique
+  hostId       String     @map("host_id")
+  boardSize    Int        @map("board_size")
+  winCondition Int        @map("win_condition")
+  type         RoomType
+  status       RoomStatus @default(WAITING)
+  createdAt    DateTime   @default(now()) @map("created_at")
+
+  host        User         @relation("RoomHost", fields: [hostId], references: [id])
+  roomPlayers RoomPlayer[]
+  games       Game[]
+
+  @@map("rooms")
+}
+
+model RoomPlayer {
+  id       String     @id @default(cuid())
+  roomId   String     @map("room_id")
+  userId   String     @map("user_id")
+  role     PlayerRole
+  joinedAt DateTime   @default(now()) @map("joined_at")
+
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([roomId, userId])
+  @@map("room_players")
+}
+
+model Game {
+  id        String     @id @default(cuid())
+  roomId    String     @map("room_id")
+  status    GameStatus @default(IN_PROGRESS)
+  winnerId  String?    @map("winner_id")
+  moves     String?
+  startedAt DateTime   @default(now()) @map("started_at")
+  endedAt   DateTime?  @map("ended_at")
+
+  room        Room         @relation(fields: [roomId], references: [id])
+  winner      User?        @relation("GameWinner", fields: [winnerId], references: [id])
+  gamePlayers GamePlayer[]
+
+  @@index([roomId])
+  @@map("games")
+}
+
+model GamePlayer {
+  id           String       @id @default(cuid())
+  gameId       String       @map("game_id")
+  userId       String       @map("user_id")
+  symbol       PlayerSymbol
+  ratingBefore Int          @map("rating_before")
+  ratingAfter  Int?         @map("rating_after")
+  joinedAt     DateTime     @default(now()) @map("joined_at")
+
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([gameId, userId])
+  @@map("game_players")
+}
