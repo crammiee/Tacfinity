@@ -15,11 +15,14 @@
     "build": "tsc --build",
     "dev": "tsc --build --watch",
     "test": "vitest run --passWithNoTests",
+    "demo": "tsx scripts/demo.ts",
     "typecheck": "tsc --build",
     "lint": "eslint src",
     "format": "prettier --write src"
   },
   "devDependencies": {
+    "@types/node": "^25.6.0",
+    "tsx": "^4.21.0",
     "typescript": "^5.4.5",
     "vitest": "^1.6.0"
   },
