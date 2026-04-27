@@ -1,5 +1,10 @@
 /* ── Setup Groups ────────────────────────────────────────────────────────────── */
-.setup-group { display: flex; flex-direction: column; gap: 8px; min-width: 120px; }
+.setup-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 120px;
+}
 
 .setup-group label {
   font-size: 10px;
@@ -9,7 +14,7 @@
 }
 
 .setup-group select,
-.setup-group input[type=number] {
+.setup-group input[type='number'] {
   background: var(--surface2);
   border: 1px solid var(--border);
   color: var(--text);
@@ -24,15 +29,19 @@
 }
 
 .setup-group select:hover,
-.setup-group input[type=number]:hover { border-color: var(--accent-o); }
-
-.setup-group select:focus,
-.setup-group input[type=number]:focus {
+.setup-group input[type='number']:hover {
   border-color: var(--accent-o);
-  box-shadow: 0 0 0 2px rgba(0,212,255,0.15);
 }
 
-.setup-group input[type=number] { width: 80px; }
+.setup-group select:focus,
+.setup-group input[type='number']:focus {
+  border-color: var(--accent-o);
+  box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.15);
+}
+
+.setup-group input[type='number'] {
+  width: 80px;
+}
 
 /* ── Mode Toggle ─────────────────────────────────────────────────────────────── */
 .mode-toggle {
@@ -56,8 +65,13 @@
   white-space: nowrap;
 }
 
-.mode-toggle button.active { background: var(--surface2); color: var(--text); }
-.mode-toggle button:hover:not(.active) { color: var(--text); }
+.mode-toggle button.active {
+  background: var(--surface2);
+  color: var(--text);
+}
+.mode-toggle button:hover:not(.active) {
+  color: var(--text);
+}
 
 /* ── Start Button ────────────────────────────────────────────────────────────── */
 #startBtn {
@@ -70,12 +84,19 @@
   padding: 12px 40px;
   border-radius: 8px;
   cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.15s;
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s;
   align-self: flex-end;
 }
 
-#startBtn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(255,77,109,0.4); }
-#startBtn:active { transform: translateY(0); }
+#startBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(255, 77, 109, 0.4);
+}
+#startBtn:active {
+  transform: translateY(0);
+}
 
 /* ── Turn Indicator ──────────────────────────────────────────────────────────── */
 .turn-indicator {
@@ -97,19 +118,52 @@
   transition: all 0.3s;
 }
 
-.player-badge.x  { background: rgba(255,77,109,0.12); border: 1px solid rgba(255,77,109,0.3); }
-.player-badge.o  { background: rgba(0,212,255,0.12);  border: 1px solid rgba(0,212,255,0.3);  }
-.player-badge.active-x { background: rgba(255,77,109,0.25); border-color: var(--accent-x); box-shadow: 0 0 12px rgba(255,77,109,0.3); }
-.player-badge.active-o { background: rgba(0,212,255,0.25);  border-color: var(--accent-o); box-shadow: 0 0 12px rgba(0,212,255,0.3); }
+.player-badge.x {
+  background: rgba(255, 77, 109, 0.12);
+  border: 1px solid rgba(255, 77, 109, 0.3);
+}
+.player-badge.o {
+  background: rgba(0, 212, 255, 0.12);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+}
+.player-badge.active-x {
+  background: rgba(255, 77, 109, 0.25);
+  border-color: var(--accent-x);
+  box-shadow: 0 0 12px rgba(255, 77, 109, 0.3);
+}
+.player-badge.active-o {
+  background: rgba(0, 212, 255, 0.25);
+  border-color: var(--accent-o);
+  box-shadow: 0 0 12px rgba(0, 212, 255, 0.3);
+}
 
-.sym { font-family: 'Bebas Neue', sans-serif; font-size: 18px; }
-.sym.x { color: var(--accent-x); }
-.sym.o { color: var(--accent-o); }
+.sym {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+}
+.sym.x {
+  color: var(--accent-x);
+}
+.sym.o {
+  color: var(--accent-o);
+}
 
 /* ── Score Display ───────────────────────────────────────────────────────────── */
-.score-display { display: flex; gap: 16px; font-size: 12px; color: var(--text-dim); }
-.score-item { text-align: center; }
-.score-item .val { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--text); display: block; }
+.score-display {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.score-item {
+  text-align: center;
+}
+.score-item .val {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  color: var(--text);
+  display: block;
+}
 
 /* ── Game Message ────────────────────────────────────────────────────────────── */
 #gameMessage {
@@ -145,23 +199,36 @@
   border-radius: 6px;
   font-family: 'Bebas Neue', sans-serif;
   font-size: calc(var(--cell-size) * 0.55);
-  transition: background 0.15s, transform 0.1s;
+  transition:
+    background 0.15s,
+    transform 0.1s;
   position: relative;
   user-select: none;
 }
 
-.cell:hover:not(.taken) { background: var(--surface2); transform: scale(1.04); }
-.cell.taken { cursor: default; }
-.cell.x { color: var(--accent-x); }
-.cell.o { color: var(--accent-o); }
+.cell:hover:not(.taken) {
+  background: var(--surface2);
+  transform: scale(1.04);
+}
+.cell.taken {
+  cursor: default;
+}
+.cell.x {
+  color: var(--accent-x);
+}
+.cell.o {
+  color: var(--accent-o);
+}
 
 .cell.win-cell {
-  background: rgba(255,215,0,0.12);
-  border: 1px solid rgba(255,215,0,0.4);
+  background: rgba(255, 215, 0, 0.12);
+  border: 1px solid rgba(255, 215, 0, 0.4);
   animation: winPulse 0.6s ease infinite alternate;
 }
 
-.cell.placed { animation: placeAnim 0.2s ease; }
+.cell.placed {
+  animation: placeAnim 0.2s ease;
+}
 
 /* ── Control Buttons ─────────────────────────────────────────────────────────── */
 .btn {
@@ -177,9 +244,18 @@
   transition: all 0.2s;
 }
 
-.btn:hover { border-color: var(--accent-o); color: var(--accent-o); }
-.btn.primary { background: rgba(0,212,255,0.1); border-color: rgba(0,212,255,0.4); color: var(--accent-o); }
-.btn.primary:hover { background: rgba(0,212,255,0.2); }
+.btn:hover {
+  border-color: var(--accent-o);
+  color: var(--accent-o);
+}
+.btn.primary {
+  background: rgba(0, 212, 255, 0.1);
+  border-color: rgba(0, 212, 255, 0.4);
+  color: var(--accent-o);
+}
+.btn.primary:hover {
+  background: rgba(0, 212, 255, 0.2);
+}
 
 /* ── Thinking Indicator ──────────────────────────────────────────────────────── */
 .thinking {
@@ -191,7 +267,9 @@
   letter-spacing: 2px;
 }
 
-.thinking.visible { display: flex; }
+.thinking.visible {
+  display: flex;
+}
 
 .dot {
   width: 4px;
@@ -201,8 +279,12 @@
   animation: blink 1s infinite;
 }
 
-.dot:nth-child(2) { animation-delay: 0.2s; }
-.dot:nth-child(3) { animation-delay: 0.4s; }
+.dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
 
 /* ── Info Tag ────────────────────────────────────────────────────────────────── */
 .tag {
