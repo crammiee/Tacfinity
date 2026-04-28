@@ -31,12 +31,12 @@ pnpm dev
 
 If everything works:
 
-| Service | URL |
-|---|---|
-| Web (Vite) | http://localhost:5173 |
-| API (Express) | http://localhost:3001 |
-| API health check | http://localhost:3001/health |
-| Postgres | `localhost:5433` (user: `tacfinity`, password: `tacfinity`, db: `tacfinity`) |
+| Service          | URL                                                                          |
+| ---------------- | ---------------------------------------------------------------------------- |
+| Web (Vite)       | http://localhost:5173                                                        |
+| API (Express)    | http://localhost:3001                                                        |
+| API health check | http://localhost:3001/health                                                 |
+| Postgres         | `localhost:5433` (user: `tacfinity`, password: `tacfinity`, db: `tacfinity`) |
 
 > **Why port 5433?** Some systems already run Postgres on the default 5432. We use 5433 for our Docker container to avoid the conflict. The connection URL in `.env.example` already points to 5433.
 
@@ -74,6 +74,15 @@ packages/
 └── shared/       # Zod schemas, game logic, AI engine — used by both apps
 ```
 
+## Before You Write Code
+
+Read both reference docs before touching any feature code. They are short and specific to this project.
+
+- [`refdocs/clean-code-practices.md`](./refdocs/clean-code-practices.md) — naming, functions, TypeScript, feature folder structure, error handling, security. Read this before naming anything or writing a function.
+- [`refdocs/api-patterns.md`](./refdocs/api-patterns.md) — URL conventions, response envelope, error codes, socket event contracts, test template. Read this before touching a route, a socket handler, or a test.
+
+Every PR is reviewed against these. Knowing the rules before you code is faster than fixing them in review.
+
 ## Common Commands
 
 ```bash
@@ -92,6 +101,42 @@ pnpm --filter @tacfinity/web dlx shadcn@latest add button
 ```
 
 Components are placed in `apps/web/src/shared/ui/`.
+
+## Contributing
+
+1. **Branch from `dev`**, not `main`:
+
+   ```bash
+   git checkout dev && git pull
+   git checkout -b feat/your-feature-name
+   ```
+
+   Branch prefix mirrors commit type: `feat/`, `fix/`, `docs/`, `chore/`, `refactor/`.
+
+2. **Run checks before you commit:**
+
+   ```bash
+   pnpm -r lint
+   pnpm -r typecheck
+   ```
+
+   Husky will also run lint-staged on commit and reject commits that violate the rules.
+
+3. **Commit with [Conventional Commits](https://www.conventionalcommits.org/)** — Husky enforces the format and will block the commit if it doesn't match:
+
+   ```
+   feat: add room creation endpoint
+   fix: prevent duplicate room codes
+   docs: update api-patterns with leaderboard route
+   ```
+
+4. **Open a PR to `dev`** (never directly to `main`). PR title follows the same convention. Body must include:
+   - **What** — what changed
+   - **Why** — why it was needed
+   - **How to test** — steps a reviewer can follow
+   - **Screenshots** — required for any UI change
+
+No direct pushes to `dev` or `main`. CI runs lint and typecheck on every PR.
 
 ## Troubleshooting
 
@@ -112,15 +157,15 @@ Containers started as root are invisible to non-root commands. Either keep using
 
 ## Tech Stack
 
-| Area | Tech |
-|---|---|
-| Frontend | React 19, Vite 8, Tailwind CSS v4, shadcn/ui |
-| State | TanStack Query, Zustand, React Router v7 |
-| Backend | Express 5, TypeScript, Socket.io |
-| Database | PostgreSQL 16 via Prisma 6 |
-| Validation | Zod (shared between FE and BE) |
-| Testing | Vitest, Playwright, Supertest |
-| Package manager | pnpm workspaces |
+| Area            | Tech                                         |
+| --------------- | -------------------------------------------- |
+| Frontend        | React 19, Vite 8, Tailwind CSS v4, shadcn/ui |
+| State           | TanStack Query, Zustand, React Router v7     |
+| Backend         | Express 5, TypeScript, Socket.io             |
+| Database        | PostgreSQL 16 via Prisma 6                   |
+| Validation      | Zod (shared between FE and BE)               |
+| Testing         | Vitest, Playwright, Supertest                |
+| Package manager | pnpm workspaces                              |
 
 ## Docs
 
