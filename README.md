@@ -96,15 +96,11 @@ pnpm -r test                          # run all tests
 
 ## Adding a shadcn/ui Component
 
-`dlx` must run from inside `apps/web/` — it doesn't support `--filter` from the root.
+`dlx` must run from inside `apps/web/` so `cd apps/web` then run `pnpm dlx shadcn@latest add <component-u-want>`
 
-```bash
-cd apps/web && pnpm dlx shadcn@latest add <component>
-```
+Components are placed in `apps/web/src/shared/ui/`. import with `@/shared/ui/<component>`
 
-Components are placed in `apps/web/src/shared/ui/`. Import them with the `@/shared/ui/<component>` alias.
-
-**Common components you'll likely need:**
+**Common components:**
 
 ```bash
 # Primitives
@@ -122,12 +118,6 @@ cd apps/web && pnpm dlx shadcn@latest add skeleton
 # Data
 cd apps/web && pnpm dlx shadcn@latest add table
 cd apps/web && pnpm dlx shadcn@latest add avatar
-```
-
-You can also add multiple components in one command:
-
-```bash
-cd apps/web && pnpm dlx shadcn@latest add button input label
 ```
 
 ## Contributing
