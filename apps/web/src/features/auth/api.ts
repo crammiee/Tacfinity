@@ -4,6 +4,10 @@ import { apiClient } from '@/shared/lib/axios';
 import { useAuthStore } from './store';
 import type { RegisterInput, LoginInput } from '@tacfinity/shared';
 
+interface LoginResponse {
+  user: { id: string; username: string; email: string };
+}
+
 export function useRegisterMutation() {
   const navigate = useNavigate();
   return useMutation({
@@ -19,8 +23,8 @@ export function useRegisterMutation() {
 export function useLoginMutation() {
   const navigate = useNavigate();
   return useMutation({
-    mutationFn: async (input: LoginInput) => {
-      return apiClient.post('/api/v1/auth/login', input);
+    mutationFn: async (input: LoginInput): Promise<LoginResponse> => {
+      return apiClient.post('/api/v1/auth/login', input) as unknown as Promise<LoginResponse>;
     },
     onSuccess: (data) => {
       useAuthStore.getState().setUser(data.user);
