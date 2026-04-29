@@ -26,6 +26,7 @@
   },
   "pnpm": {
     "onlyBuiltDependencies": [
+      "bcrypt",
       "esbuild",
       "prisma",
       "@prisma/engines",
@@ -33,6 +34,8 @@
     ]
   },
   "devDependencies": {
+    "@commitlint/cli": "^20.5.2",
+    "@commitlint/config-conventional": "^20.5.0",
     "@eslint/js": "^9.0.0",
     "eslint": "^9.0.0",
     "eslint-plugin-react-hooks": "^7.1.1",
