@@ -4,6 +4,7 @@ node_modules/
 # Build output
 dist/
 dist-ssr/
+*.tsbuildinfo
 
 # Vite cache
 .vite/
@@ -35,3 +36,4 @@ plans/
 docs/
 
 CLAUDE.md
+.claude/

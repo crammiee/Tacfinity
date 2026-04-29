@@ -96,11 +96,29 @@ pnpm -r test                          # run all tests
 
 ## Adding a shadcn/ui Component
 
-```bash
-pnpm --filter @tacfinity/web dlx shadcn@latest add button
-```
+`dlx` must run from inside `apps/web/` so `cd apps/web` then run `pnpm dlx shadcn@latest add <component-u-want>`
 
-Components are placed in `apps/web/src/shared/ui/`.
+Components are placed in `apps/web/src/shared/ui/`. import with `@/shared/ui/<component>`
+
+**Common components:**
+
+```bash
+# Primitives
+cd apps/web && pnpm dlx shadcn@latest add button
+cd apps/web && pnpm dlx shadcn@latest add input
+cd apps/web && pnpm dlx shadcn@latest add label
+cd apps/web && pnpm dlx shadcn@latest add badge
+
+# Layout / feedback
+cd apps/web && pnpm dlx shadcn@latest add card
+cd apps/web && pnpm dlx shadcn@latest add dialog
+cd apps/web && pnpm dlx shadcn@latest add toast
+cd apps/web && pnpm dlx shadcn@latest add skeleton
+
+# Data
+cd apps/web && pnpm dlx shadcn@latest add table
+cd apps/web && pnpm dlx shadcn@latest add avatar
+```
 
 ## Contributing
 
