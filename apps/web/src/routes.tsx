@@ -1,14 +1,7 @@
-import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
-
-// TODO(integration): replace stubs with real imports
-// import { AppShell, AuthShell } from './shared/layouts';
-// import { OfflineGamePage } from './features/offline-bot';
-// import { LoginPage, RegisterPage } from './features/auth';
-const AppShell = () => <Outlet />;
-const AuthShell = () => <Outlet />;
-const OfflineGamePage = () => <div>Offline game coming soon</div>;
-const LoginPage = () => <div>Login coming soon</div>;
-const RegisterPage = () => <div>Register coming soon</div>;
+import { Navigate, Route, Routes } from 'react-router-dom';
+import { AppShell, AuthShell } from './shared/layouts';
+import { OfflineGamePage } from './features/offline-bot';
+import { LoginPage, RegisterPage } from './features/auth';
 
 export function AppRoutes() {
   return (
