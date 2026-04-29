@@ -4,11 +4,6 @@ import { apiClient } from '@/shared/lib/axios';
 import { useAuthStore } from './store';
 import type { RegisterInput, LoginInput } from '@tacfinity/shared';
 
-/**
- * Register mutation
- * POST /api/v1/auth/register
- * On success: navigate to login page with success message
- */
 export function useRegisterMutation() {
   const navigate = useNavigate();
   return useMutation({

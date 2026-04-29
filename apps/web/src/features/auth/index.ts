@@ -1,3 +1,5 @@
-export { useAuth } from './hooks/useAuth'; // FE1 creates this
-export { useAuthStore } from './store'; // FE1 creates this
+export { LoginPage } from './components/LoginPage';
+export { RegisterPage } from './components/RegisterPage';
 export { useLoginMutation, useRegisterMutation, useLogoutMutation } from './api';
+export { useAuth } from './useAuth';
+export { useAuthStore } from './store';
