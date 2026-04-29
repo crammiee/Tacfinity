@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
+import { Label } from '@/shared/ui/label';
 import { Loader2 } from 'lucide-react';
 import { useRegisterMutation } from '../api';
 
@@ -17,32 +18,53 @@ export function RegisterPage() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <Input
-        type="text"
-        placeholder="Username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        disabled={mutation.isPending}
-        required
-      />
-      <Input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        disabled={mutation.isPending}
-        required
-      />
-      <Input
-        type="password"
-        placeholder="Password (min 8 chars)"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        disabled={mutation.isPending}
-        required
-      />
-      {mutation.error && <p className="text-sm text-red-500">{mutation.error.message}</p>}
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <div className="space-y-1 text-center">
+        <h1 className="text-2xl font-bold tracking-tight">Create an account</h1>
+        <p className="text-sm text-muted-foreground">Join Tacfinity and start playing</p>
+      </div>
+
+      <div className="space-y-4">
+        <div className="space-y-1.5">
+          <Label htmlFor="username">Username</Label>
+          <Input
+            id="username"
+            type="text"
+            placeholder="your_username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            disabled={mutation.isPending}
+            required
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="email">Email</Label>
+          <Input
+            id="email"
+            type="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={mutation.isPending}
+            required
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="password">Password</Label>
+          <Input
+            id="password"
+            type="password"
+            placeholder="Min. 8 characters"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            disabled={mutation.isPending}
+            required
+          />
+        </div>
+      </div>
+
+      {mutation.error && <p className="text-sm text-destructive">{mutation.error.message}</p>}
+
       <Button type="submit" className="w-full" disabled={mutation.isPending}>
         {mutation.isPending ? (
           <>
@@ -53,9 +75,10 @@ export function RegisterPage() {
           'Register'
         )}
       </Button>
-      <p className="mt-4 text-sm text-center">
+
+      <p className="text-sm text-center text-muted-foreground">
         Already have an account?{' '}
-        <Link to="/login" className="text-blue-600 hover:underline">
+        <Link to="/login" className="text-primary font-medium hover:underline">
           Login
         </Link>
       </p>

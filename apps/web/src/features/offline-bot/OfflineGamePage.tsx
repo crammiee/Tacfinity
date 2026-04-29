@@ -25,8 +25,8 @@ export function OfflineGamePage() {
   const isBoardDisabled = isGameOver || isAiThinking;
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center gap-6 p-4">
-      <h1 className="text-3xl font-bold text-slate-100 tracking-tight">Tacfinity</h1>
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-6 p-4">
+      <h1 className="text-3xl font-bold text-foreground tracking-tight">Tacfinity</h1>
 
       {!isGameActive ? (
         <SetupPanel onStart={startGame} />
@@ -56,7 +56,7 @@ export function OfflineGamePage() {
             </Button>
             <Button
               variant="outline"
-              className="text-slate-400 border-slate-600"
+              className="text-muted-foreground border-border"
               onClick={resetAll}
             >
               Reset All
