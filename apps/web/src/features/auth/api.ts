@@ -16,11 +16,6 @@ export function useRegisterMutation() {
   });
 }
 
-/**
- * Login mutation
- * POST /api/v1/auth/login
- * On success: store user in auth store and navigate to play page
- */
 export function useLoginMutation() {
   const navigate = useNavigate();
   return useMutation({
@@ -34,11 +29,6 @@ export function useLoginMutation() {
   });
 }
 
-/**
- * Logout mutation
- * POST /api/v1/auth/logout
- * On success: clear user from store and navigate to login page
- */
 export function useLogoutMutation() {
   const navigate = useNavigate();
   return useMutation({
