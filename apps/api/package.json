@@ -15,7 +15,8 @@
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
     "db:reset": "prisma migrate reset",
-    "test:foundation": "tsx scripts/smoke-test-foundation.ts"
+    "test:foundation": "tsx scripts/smoke-test-foundation.ts",
+    "test:auth": "tsx scripts/test-auth.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
