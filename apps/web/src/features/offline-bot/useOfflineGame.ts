@@ -165,6 +165,7 @@ export function useOfflineGame(): OfflineGameState & OfflineGameActions {
     [endGame, doAiMove]
   );
 
+  console.log('settings:', settings, 'board length:', board.length);
   return {
     board,
     currentPlayer,

@@ -44,6 +44,7 @@ export function OfflineGamePage() {
           <GameBoard
             board={board}
             cols={settings.cols}
+            rows={settings.rows}
             winningCells={winningCells}
             isDisabled={isBoardDisabled}
             onCellClick={handleCellClick}
@@ -53,7 +54,11 @@ export function OfflineGamePage() {
             <Button variant="outline" onClick={resetBoard}>
               New Game
             </Button>
-            <Button variant="ghost" onClick={resetAll}>
+            <Button
+              variant="outline"
+              className="text-slate-400 border-slate-600"
+              onClick={resetAll}
+            >
               Reset All
             </Button>
           </div>
