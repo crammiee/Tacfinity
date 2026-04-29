@@ -1,5 +1,8 @@
 import { useState } from 'react';
-import { Button } from '../../../shared/ui/button';
+import { Button } from '@/shared/ui/button';
+import { Input } from '@/shared/ui/input';
+import { Label } from '@/shared/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select';
 import type { Difficulty, GameMode, GameSettings, Player } from '@tacfinity/shared';
 
 interface SetupPanelProps {
@@ -28,113 +31,108 @@ export function SetupPanel({ onStart }: SetupPanelProps) {
   const [difficulty, setDifficulty] = useState<Difficulty>('hard');
   const [humanSide, setHumanSide] = useState<Player>('X');
 
-  const handleColsChange = (raw: number) => {
-    const next = clamp(raw, MIN_DIMENSION, MAX_DIMENSION);
+  const handleColsChange = (val: string) => {
+    const next = clamp(Number(val), MIN_DIMENSION, MAX_DIMENSION);
     setCols(next);
     setWinLen((prev) => clampWinLen(prev, next, rows));
   };
 
-  const handleRowsChange = (raw: number) => {
-    const next = clamp(raw, MIN_DIMENSION, MAX_DIMENSION);
+  const handleRowsChange = (val: string) => {
+    const next = clamp(Number(val), MIN_DIMENSION, MAX_DIMENSION);
     setRows(next);
     setWinLen((prev) => clampWinLen(prev, cols, next));
   };
 
-  const handleWinLenChange = (raw: number) => {
-    setWinLen(clampWinLen(raw, cols, rows));
+  const handleWinLenChange = (val: string) => {
+    setWinLen(clampWinLen(Number(val), cols, rows));
   };
 
   const handleSubmit = () => {
     onStart({ cols, rows, winLen, mode, difficulty, humanSide });
   };
 
-  const labelClass = 'block text-sm font-medium text-slate-300 mb-1';
-  const inputClass =
-    'w-full rounded-md border border-slate-600 bg-slate-800 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500';
-  const selectClass = inputClass;
+  // Shared styles for the shadcn components to match your dark theme
+  const fieldStyles = 'bg-slate-800 border-slate-600 text-slate-100 focus:ring-sky-500';
 
   return (
     <div className="w-full max-w-sm mx-auto rounded-xl border border-slate-700 bg-slate-900 p-6 space-y-5">
       <h2 className="text-xl font-bold text-slate-100 tracking-tight">New Game</h2>
 
-      <div>
-        <label className={labelClass}>Mode</label>
-        <select
-          className={selectClass}
-          value={mode}
-          onChange={(e) => setMode(e.target.value as GameMode)}
-        >
-          <option value="2p">2 Players</option>
-          <option value="ai">vs AI</option>
-        </select>
+      <div className="space-y-2">
+        <Label className="text-slate-300">Mode</Label>
+        <Select value={mode} onValueChange={(v) => setMode(v as GameMode)}>
+          <SelectTrigger className={fieldStyles}>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="bg-slate-800 border-slate-700 text-slate-100">
+            <SelectItem value="2p">2 Players</SelectItem>
+            <SelectItem value="ai">vs AI</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="grid grid-cols-3 gap-3">
-        <div>
-          <label className={labelClass}>Columns</label>
-          <input
+        <div className="space-y-2">
+          <Label className="text-slate-300">Columns</Label>
+          <Input
             type="number"
-            className={inputClass}
+            className={fieldStyles}
             value={cols}
-            min={MIN_DIMENSION}
-            max={MAX_DIMENSION}
-            onChange={(e) => handleColsChange(Number(e.target.value))}
+            onChange={(e) => handleColsChange(e.target.value)}
           />
         </div>
-        <div>
-          <label className={labelClass}>Rows</label>
-          <input
+        <div className="space-y-2">
+          <Label className="text-slate-300">Rows</Label>
+          <Input
             type="number"
-            className={inputClass}
+            className={fieldStyles}
             value={rows}
-            min={MIN_DIMENSION}
-            max={MAX_DIMENSION}
-            onChange={(e) => handleRowsChange(Number(e.target.value))}
+            onChange={(e) => handleRowsChange(e.target.value)}
           />
         </div>
-        <div>
-          <label className={labelClass}>Win length</label>
-          <input
+        <div className="space-y-2">
+          <Label className="text-slate-300">Win len</Label>
+          <Input
             type="number"
-            className={inputClass}
+            className={fieldStyles}
             value={winLen}
-            min={MIN_DIMENSION}
-            max={Math.min(cols, rows)}
-            onChange={(e) => handleWinLenChange(Number(e.target.value))}
+            onChange={(e) => handleWinLenChange(e.target.value)}
           />
         </div>
       </div>
 
       {mode === 'ai' && (
-        <>
-          <div>
-            <label className={labelClass}>Difficulty</label>
-            <select
-              className={selectClass}
-              value={difficulty}
-              onChange={(e) => setDifficulty(e.target.value as Difficulty)}
-            >
-              <option value="easy">Easy</option>
-              <option value="medium">Medium</option>
-              <option value="hard">Hard</option>
-            </select>
+        <div className="space-y-4 pt-2">
+          <div className="space-y-2">
+            <Label className="text-slate-300">Difficulty</Label>
+            <Select value={difficulty} onValueChange={(v) => setDifficulty(v as Difficulty)}>
+              <SelectTrigger className={fieldStyles}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-slate-800 border-slate-700 text-slate-100">
+                <SelectItem value="easy">Easy</SelectItem>
+                <SelectItem value="medium">Medium</SelectItem>
+                <SelectItem value="hard">Hard</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
-          <div>
-            <label className={labelClass}>You play as</label>
-            <select
-              className={selectClass}
-              value={humanSide}
-              onChange={(e) => setHumanSide(e.target.value as Player)}
-            >
-              <option value="X">X (goes first)</option>
-              <option value="O">O (goes second)</option>
-            </select>
+          <div className="space-y-2">
+            <Label className="text-slate-300">You play as</Label>
+            <Select value={humanSide} onValueChange={(v) => setHumanSide(v as Player)}>
+              <SelectTrigger className={fieldStyles}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-slate-800 border-slate-700 text-slate-100">
+                <SelectItem value="X">X (goes first)</SelectItem>
+                <SelectItem value="O">O (goes second)</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-        </>
+        </div>
       )}
 
-      <Button className="w-full" onClick={handleSubmit}>
+      <Button className="w-full bg-sky-600 hover:bg-sky-500 text-white" onClick={handleSubmit}>
         Start Game
       </Button>
     </div>
