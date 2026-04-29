@@ -26,7 +26,7 @@ interface PlayerBadgeProps {
 
 function PlayerBadge({ player, isActive, score }: PlayerBadgeProps) {
   const colorClass =
-    player === 'X' ? 'text-sky-400 border-sky-400' : 'text-rose-400 border-rose-400';
+    player === 'X' ? 'text-player-x border-player-x' : 'text-player-o border-player-o';
   const activeClass = isActive ? 'opacity-100 scale-105' : 'opacity-40';
 
   return (
@@ -39,7 +39,7 @@ function PlayerBadge({ player, isActive, score }: PlayerBadgeProps) {
       >
         {player}
       </span>
-      <span className="text-xs text-slate-400 font-medium">{score}</span>
+      <span className="text-xs text-muted-foreground font-medium">{score}</span>
     </div>
   );
 }
@@ -56,16 +56,16 @@ export function StatusBar({
   const activePlayer = isGameOver ? null : currentPlayer;
 
   return (
-    <div className="flex items-center justify-between w-full max-w-sm mx-auto px-4 py-3 rounded-xl border border-slate-700 bg-slate-900">
+    <div className="flex items-center justify-between w-full max-w-sm mx-auto px-4 py-3 rounded-xl border border-border bg-card">
       <PlayerBadge player="X" isActive={activePlayer === 'X'} score={scores.X} />
 
       <div className="flex flex-col items-center gap-1 min-w-0 px-2">
         {message ? (
-          <p className="text-sm font-semibold text-slate-100 text-center">{message}</p>
+          <p className="text-sm font-semibold text-foreground text-center">{message}</p>
         ) : (
-          <p className="text-sm text-slate-400 text-center">{currentPlayer}&apos;s turn</p>
+          <p className="text-sm text-muted-foreground text-center">{currentPlayer}&apos;s turn</p>
         )}
-        <span className="text-xs text-slate-500">Draw: {scores.draw}</span>
+        <span className="text-xs text-muted-foreground">Draw: {scores.draw}</span>
       </div>
 
       <PlayerBadge player="O" isActive={activePlayer === 'O'} score={scores.O} />
