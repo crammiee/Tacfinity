@@ -51,20 +51,17 @@ export function SetupPanel({ onStart }: SetupPanelProps) {
     onStart({ cols, rows, winLen, mode, difficulty, humanSide });
   };
 
-  // Shared styles for the shadcn components to match your dark theme
-  const fieldStyles = 'bg-slate-800 border-slate-600 text-slate-100 focus:ring-sky-500';
-
   return (
-    <div className="w-full max-w-sm mx-auto rounded-xl border border-slate-700 bg-slate-900 p-6 space-y-5">
-      <h2 className="text-xl font-bold text-slate-100 tracking-tight">New Game</h2>
+    <div className="w-full max-w-sm mx-auto rounded-xl border border-border bg-card p-6 space-y-5">
+      <h2 className="text-xl font-bold text-foreground tracking-tight">New Game</h2>
 
       <div className="space-y-2">
-        <Label className="text-slate-300">Mode</Label>
+        <Label className="text-muted-foreground">Mode</Label>
         <Select value={mode} onValueChange={(v) => setMode(v as GameMode)}>
-          <SelectTrigger className={fieldStyles}>
+          <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
-          <SelectContent className="bg-slate-800 border-slate-700 text-slate-100">
+          <SelectContent>
             <SelectItem value="2p">2 Players</SelectItem>
             <SelectItem value="ai">vs AI</SelectItem>
           </SelectContent>
@@ -73,28 +70,17 @@ export function SetupPanel({ onStart }: SetupPanelProps) {
 
       <div className="grid grid-cols-3 gap-3">
         <div className="space-y-2">
-          <Label className="text-slate-300">Columns</Label>
-          <Input
-            type="number"
-            className={fieldStyles}
-            value={cols}
-            onChange={(e) => handleColsChange(e.target.value)}
-          />
+          <Label className="text-muted-foreground">Columns</Label>
+          <Input type="number" value={cols} onChange={(e) => handleColsChange(e.target.value)} />
         </div>
         <div className="space-y-2">
-          <Label className="text-slate-300">Rows</Label>
-          <Input
-            type="number"
-            className={fieldStyles}
-            value={rows}
-            onChange={(e) => handleRowsChange(e.target.value)}
-          />
+          <Label className="text-muted-foreground">Rows</Label>
+          <Input type="number" value={rows} onChange={(e) => handleRowsChange(e.target.value)} />
         </div>
         <div className="space-y-2">
-          <Label className="text-slate-300">Win len</Label>
+          <Label className="text-muted-foreground">Win len</Label>
           <Input
             type="number"
-            className={fieldStyles}
             value={winLen}
             onChange={(e) => handleWinLenChange(e.target.value)}
           />
@@ -104,12 +90,12 @@ export function SetupPanel({ onStart }: SetupPanelProps) {
       {mode === 'ai' && (
         <div className="space-y-4 pt-2">
           <div className="space-y-2">
-            <Label className="text-slate-300">Difficulty</Label>
+            <Label className="text-muted-foreground">Difficulty</Label>
             <Select value={difficulty} onValueChange={(v) => setDifficulty(v as Difficulty)}>
-              <SelectTrigger className={fieldStyles}>
+              <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-slate-800 border-slate-700 text-slate-100">
+              <SelectContent>
                 <SelectItem value="easy">Easy</SelectItem>
                 <SelectItem value="medium">Medium</SelectItem>
                 <SelectItem value="hard">Hard</SelectItem>
@@ -118,12 +104,12 @@ export function SetupPanel({ onStart }: SetupPanelProps) {
           </div>
 
           <div className="space-y-2">
-            <Label className="text-slate-300">You play as</Label>
+            <Label className="text-muted-foreground">You play as</Label>
             <Select value={humanSide} onValueChange={(v) => setHumanSide(v as Player)}>
-              <SelectTrigger className={fieldStyles}>
+              <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-slate-800 border-slate-700 text-slate-100">
+              <SelectContent>
                 <SelectItem value="X">X (goes first)</SelectItem>
                 <SelectItem value="O">O (goes second)</SelectItem>
               </SelectContent>
@@ -132,7 +118,7 @@ export function SetupPanel({ onStart }: SetupPanelProps) {
         </div>
       )}
 
-      <Button className="w-full bg-sky-600 hover:bg-sky-500 text-white" onClick={handleSubmit}>
+      <Button className="w-full" onClick={handleSubmit}>
         Start Game
       </Button>
     </div>
