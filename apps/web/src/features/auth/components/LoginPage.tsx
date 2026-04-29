@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
+import { Label } from '@/shared/ui/label';
 import { Loader2 } from 'lucide-react';
 import { useLoginMutation } from '../api';
 
@@ -16,24 +17,41 @@ export function LoginPage() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <Input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        disabled={mutation.isPending}
-        required
-      />
-      <Input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        disabled={mutation.isPending}
-        required
-      />
-      {mutation.error && <p className="text-sm text-red-500">{mutation.error.message}</p>}
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <div className="space-y-1 text-center">
+        <h1 className="text-2xl font-bold tracking-tight">Welcome back</h1>
+        <p className="text-sm text-muted-foreground">Sign in to your Tacfinity account</p>
+      </div>
+
+      <div className="space-y-4">
+        <div className="space-y-1.5">
+          <Label htmlFor="email">Email</Label>
+          <Input
+            id="email"
+            type="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={mutation.isPending}
+            required
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="password">Password</Label>
+          <Input
+            id="password"
+            type="password"
+            placeholder="••••••••"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            disabled={mutation.isPending}
+            required
+          />
+        </div>
+      </div>
+
+      {mutation.error && <p className="text-sm text-destructive">{mutation.error.message}</p>}
+
       <Button type="submit" className="w-full" disabled={mutation.isPending}>
         {mutation.isPending ? (
           <>
@@ -44,9 +62,10 @@ export function LoginPage() {
           'Login'
         )}
       </Button>
-      <p className="mt-4 text-sm text-center">
-        Don't have an account?{' '}
-        <Link to="/register" className="text-blue-600 hover:underline">
+
+      <p className="text-sm text-center text-muted-foreground">
+        Don&apos;t have an account?{' '}
+        <Link to="/register" className="text-primary font-medium hover:underline">
           Register
         </Link>
       </p>

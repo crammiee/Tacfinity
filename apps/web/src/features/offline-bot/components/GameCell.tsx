@@ -1,4 +1,5 @@
 import type { Cell } from '@tacfinity/shared';
+import { cn } from '@/shared/lib/utils';
 
 interface GameCellProps {
   value: Cell;
@@ -8,11 +9,6 @@ interface GameCellProps {
   isDisabled: boolean;
   onClick: (idx: number) => void;
 }
-
-const SYMBOL_COLOR: Record<string, string> = {
-  X: '#38bdf8',
-  O: '#fb7185',
-};
 
 export function GameCell({
   value,
@@ -26,10 +22,6 @@ export function GameCell({
     if (!isDisabled && value === null) onClick(index);
   };
 
-  const backgroundColor = isWinCell ? 'rgba(250, 204, 21, 0.15)' : '#1e293b';
-  const borderColor = isWinCell ? 'rgba(250, 204, 21, 0.4)' : '#334155';
-  const color = value !== null ? SYMBOL_COLOR[value] : 'transparent';
-  const cursor = isDisabled || value !== null ? 'default' : 'pointer';
   const fontSize = cellSize > 48 ? '1.5rem' : cellSize > 32 ? '1.125rem' : '0.875rem';
 
   return (
@@ -38,22 +30,15 @@ export function GameCell({
       aria-label={`Cell ${index + 1}${value !== null ? `, ${value}` : ', empty'}`}
       onClick={handleClick}
       disabled={isDisabled && value === null}
-      style={{
-        width: `${cellSize}px`,
-        height: `${cellSize}px`,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        border: `1px solid ${borderColor}`,
-        borderRadius: '6px',
-        backgroundColor,
-        color,
-        fontSize,
-        fontWeight: 'bold',
-        cursor,
-        transition: 'background-color 0.1s',
-        userSelect: 'none',
-      }}
+      style={{ width: `${cellSize}px`, height: `${cellSize}px`, fontSize }}
+      className={cn(
+        'flex items-center justify-center border rounded-md font-bold transition-colors select-none',
+        isWinCell ? 'bg-yellow-400/15 border-yellow-400/40' : 'bg-secondary border-border',
+        value === 'X' && 'text-player-x',
+        value === 'O' && 'text-player-o',
+        value === null && 'text-transparent',
+        isDisabled || value !== null ? 'cursor-default' : 'cursor-pointer'
+      )}
     >
       {value}
     </button>
