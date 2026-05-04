@@ -28,7 +28,7 @@ export function useLoginMutation() {
     },
     onSuccess: (data) => {
       useAuthStore.getState().setUser(data.user);
-      navigate('/play');
+      navigate('/');
     },
   });
 }
