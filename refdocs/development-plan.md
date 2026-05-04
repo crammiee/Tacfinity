@@ -89,7 +89,6 @@ tacfinity/
 ├── docker-compose.yml            # postgres for local dev
 ├── pnpm-workspace.yaml
 ├── package.json
-├── CLAUDE.md
 └── README.md
 ```
 
@@ -208,4 +207,3 @@ These are the contracts every future PR is graded against. Read them before writ
 Record scope / stack / deadline changes here so the history is auditable.
 
 - **2026-04-22** — Initial plan approved. Stack locked. Phase 0 begins.
-- **2026-05-04** — Phase 2 scope narrowed. Fixed game mode (11×11 / 5-in-a-row), no room customization. Leaderboard moved to homepage (not a separate route). Play a Friend, rematch, reconnection deferred to Phase 3. Team split locked: Canete on page scaffolds + routing, backend on socket/game logic, 3× frontend on shared components.
