@@ -1,15 +1,20 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import { AppShell, AuthShell } from './shared/layouts';
-import { OfflineGamePage } from './features/offline-bot';
+import { RequireAuth } from './shared/components/RequireAuth';
+import { HomePage } from './features/home';
 import { LoginPage, RegisterPage } from './features/auth';
+import { OnlineGamePage, BotGamePage } from './features/game';
 
 export function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/play" replace />} />
-
       <Route element={<AppShell />}>
-        <Route path="/play" element={<OfflineGamePage />} />
+        <Route path="/" element={<HomePage />} />
+        <Route path="/play/bot" element={<BotGamePage />} />
+
+        <Route element={<RequireAuth />}>
+          <Route path="/play/online" element={<OnlineGamePage />} />
+        </Route>
       </Route>
 
       <Route element={<AuthShell />}>
