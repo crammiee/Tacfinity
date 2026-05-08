@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { PlayerLabel } from '@/shared/components/PlayerLabel';
 
-interface PlayerInfo {
+export interface PlayerInfo {
   username: string;
   rating: number;
 }
