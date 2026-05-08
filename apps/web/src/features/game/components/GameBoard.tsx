@@ -1,4 +1,3 @@
-import React from 'react';
 import type { Cell } from '@tacfinity/shared';
 
 interface Props {
@@ -8,7 +7,7 @@ interface Props {
   onCellClick: (index: number) => void;
 }
 
-export function GameBoard({ board, winCells, disabled, onCellClick }: Props): React.ReactElement {
+export function GameBoard({ board, winCells, disabled, onCellClick }: Props) {
   return (
     <div
       className="border border-border rounded-lg overflow-hidden w-full"
