@@ -3,6 +3,7 @@ import { GameState, WinDetector, AIFactory } from '@tacfinity/shared';
 import type { Cell, Difficulty, Player } from '@tacfinity/shared';
 import { Button } from '@/shared/ui/button';
 import { useAuth } from '@/features/auth/useAuth';
+import { PlayerLabel } from '@/shared/components/PlayerLabel';
 
 type Phase = 'setup' | 'playing' | 'gameover';
 
@@ -160,26 +161,6 @@ export function BotGamePage() {
           {phase === 'setup' ? 'Start Game' : 'New Game'}
         </Button>
       </aside>
-    </div>
-  );
-}
-
-function PlayerLabel({
-  username,
-  rating,
-  isMe = false,
-}: {
-  username: string;
-  rating: number;
-  isMe?: boolean;
-}) {
-  return (
-    <div className="flex items-center gap-2 text-sm w-full max-w-[300px]">
-      <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center text-xs font-bold uppercase">
-        {username[0]}
-      </div>
-      <span className={`font-medium ${isMe ? '' : 'text-muted-foreground'}`}>{username}</span>
-      <span className="ml-auto text-muted-foreground">♟ {rating.toLocaleString()}</span>
     </div>
   );
 }
