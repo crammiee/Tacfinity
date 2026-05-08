@@ -194,11 +194,12 @@ Standard form. No sidebar needed (or minimal sidebar with logo only).
 
 **Right panel — state machine:**
 
-| State       | Content                                 |
-| ----------- | --------------------------------------- |
-| Pre-match   | "Start Game" button                     |
-| Matchmaking | Elapsed timer (MM:SS) + "Cancel" button |
-| In-game     | (TBD — game controls, move history)     |
+| State (`matchStatus`) | Content                                                   |
+| --------------------- | --------------------------------------------------------- |
+| `idle`                | "Find Match" button                                       |
+| `searching`           | `MatchmakingTimer` (elapsed MM:SS) + "Cancel" button      |
+| `playing`             | `RightPanel` — player labels (active ring) + move history |
+| `ended`               | `GameResultOverlay` (fixed overlay) — result + ELO delta  |
 
 **Board header/footer:**
 
@@ -278,27 +279,30 @@ Same layout as the online game room with one difference in the right panel.
   → /play/online
       board visible, opponent slot shows "Searching..."
       right panel: "Start Game" button
-  → click "Start Game"
-      right panel: timer counting up + "Cancel" button
-      socket: queue:join emitted
+  → click "Find Match"
+      matchStatus → searching
+      MatchmakingTimer starts, "Cancel" button shown
+      socket connects + emits queue:join
   → server emits queue:matched
-      opponent slot populates (username + rating)
-      right panel switches to in-game state
-      game begins
+      matchStatus → playing
+      board initialised (121 nulls), players populated
+      RightPanel shows player labels + move history
   → moves played via board clicks
-      each click: socket game:move {row,col}
-      server broadcasts game:update to both
+      each click: socket game:move { gameId, row, col }
+      server broadcasts game:update (tgnToken) to both
+      board updates, move appended to history
   → server emits game:end
-  → Result screen (TBD)
+      matchStatus → ended
+      GameResultOverlay appears with result + ELO delta
+  → "Play Again" → re-enters queue (joinQueue)
 ```
 
 **Cancel path:**
 
 ```
   → click "Cancel"
-      socket: queue:leave emitted
-      right panel: back to "Start Game" button
-      opponent slot: back to "Searching..."
+      socket.disconnect() → server removes from queue on disconnect
+      matchStatus → idle, back to "Find Match" button
 ```
 
 ---
@@ -345,26 +349,27 @@ Browser goes offline
 
 ## Component Inventory
 
-| Component          | Used on            | Notes                                      |
-| ------------------ | ------------------ | ------------------------------------------ |
-| `Sidebar`          | All pages          | Two states: auth / unauth                  |
-| `TopBar`           | Authorized pages   | Username + rating                          |
-| `HeroSection`      | Unauth home        | Headline + CTA                             |
-| `PlayMenu`         | Auth home          | Play Online + Play Bots buttons            |
-| `Leaderboard`      | Both home versions | Public; highlights own row when authorized |
-| `GameBoard`        | Game rooms         | Variable grid size                         |
-| `PlayerLabel`      | Game rooms         | Name + rating, top/bottom of board         |
-| `RightPanel`       | Game rooms         | Start / matchmaking / difficulty           |
-| `DifficultyPicker` | Bot game room      | Easy / Medium / Hard radio                 |
-| `MatchmakingTimer` | Online game room   | Elapsed time + cancel                      |
+| Component           | Used on            | Notes                                      |
+| ------------------- | ------------------ | ------------------------------------------ |
+| `Sidebar`           | All pages          | Two states: auth / unauth                  |
+| `TopBar`            | Authorized pages   | Username + rating                          |
+| `HeroSection`       | Unauth home        | Headline + CTA                             |
+| `PlayMenu`          | Auth home          | Play Online + Play Bots buttons            |
+| `Leaderboard`       | Both home versions | Public; highlights own row when authorized |
+| `GameBoard`         | Game rooms         | 11×11 CSS grid, 121 `Cell[]` buttons       |
+| `PlayerLabel`       | Game rooms         | Name + rating + symbol badge + active ring |
+| `RightPanel`        | Online game room   | Player labels + scrollable move history    |
+| `DifficultyPicker`  | Bot game room      | Easy / Medium / Hard radio                 |
+| `MatchmakingTimer`  | Online game room   | Elapsed time (`setInterval`) + cancel      |
+| `GameResultOverlay` | Online game room   | Fixed overlay — result heading + ELO delta |
 
 ---
 
 ## State Ownership per Page
 
-| Page               | TanStack Query (server)                          | Zustand / useState (client)              |
-| ------------------ | ------------------------------------------------ | ---------------------------------------- |
-| Unauth Home        | top players (leaderboard)                        | —                                        |
-| Auth Home          | current user + rating, top players (leaderboard) | —                                        |
-| Game Room (online) | —                                                | board state, queue status, socket events |
-| Game Room (bot)    | —                                                | board state, difficulty, AI turn         |
+| Page               | TanStack Query (server)                          | Zustand / useState (client)                     |
+| ------------------ | ------------------------------------------------ | ----------------------------------------------- |
+| Unauth Home        | top players (leaderboard)                        | —                                               |
+| Auth Home          | current user + rating, top players (leaderboard) | —                                               |
+| Game Room (online) | —                                                | all in `useGameSocket` hook (useState + useRef) |
+| Game Room (bot)    | —                                                | board state, difficulty, AI turn                |
