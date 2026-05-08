@@ -18,13 +18,13 @@ This document is the contract for every HTTP endpoint and socket event in Tacfin
 
 ## 2. HTTP Verbs
 
-| Verb | Use |
-| --- | --- |
-| `GET` | Read. Never mutates. Safe to retry. |
-| `POST` | Create a resource, or an action that doesn't fit REST. |
-| `PATCH` | Partial update. |
-| `PUT` | Full replacement. Rare — most updates are partial. |
-| `DELETE` | Remove a resource. |
+| Verb     | Use                                                    |
+| -------- | ------------------------------------------------------ |
+| `GET`    | Read. Never mutates. Safe to retry.                    |
+| `POST`   | Create a resource, or an action that doesn't fit REST. |
+| `PATCH`  | Partial update.                                        |
+| `PUT`    | Full replacement. Rare — most updates are partial.     |
+| `DELETE` | Remove a resource.                                     |
 
 - **No verbs in URLs.** Bad: `POST /api/v1/games/forfeitGame`. Good: `POST /api/v1/games/:id/forfeit` (sub-resource action) _or_ `PATCH /api/v1/games/:id` with `{ status: 'FORFEITED' }` in the body. Prefer the PATCH when it's a state transition.
 - **Status codes align with intent.** 200 for successful reads, 201 for created resources, 204 for deletes with no body, 400 for validation, 401 for missing/invalid auth, 403 for authenticated-but-forbidden, 404 for not found, 409 for conflict (e.g. duplicate room code), 429 for rate limit, 500 for server bugs.
@@ -36,11 +36,13 @@ This document is the contract for every HTTP endpoint and socket event in Tacfin
 **Every** response uses one of two shapes. Status code and envelope always agree.
 
 **Success:**
+
 ```json
 { "data": <T> }
 ```
 
 **Error:**
+
 ```json
 {
   "error": {
@@ -58,8 +60,7 @@ This document is the contract for every HTTP endpoint and socket event in Tacfin
 A helper lives in `apps/api/src/shared/utils/respond.ts`:
 
 ```ts
-export const ok = <T>(res: Response, data: T, status = 200) =>
-  res.status(status).json({ data });
+export const ok = <T>(res: Response, data: T, status = 200) => res.status(status).json({ data });
 ```
 
 ---
@@ -68,15 +69,15 @@ export const ok = <T>(res: Response, data: T, status = 200) =>
 
 Enumerated, stable strings. Client code pattern-matches on these, never on messages.
 
-| Code | HTTP | Meaning |
-| --- | --- | --- |
-| `VALIDATION_ERROR` | 400 | Zod parse failed. `details` is the issue list. |
-| `UNAUTHORIZED` | 401 | No auth or expired/invalid token. |
-| `FORBIDDEN` | 403 | Authenticated but not allowed. |
-| `NOT_FOUND` | 404 | Resource does not exist. |
-| `CONFLICT` | 409 | Duplicate or state conflict (room code collision, already joined). |
-| `RATE_LIMITED` | 429 | Too many requests. `details.retryAfter` in seconds. |
-| `INTERNAL` | 500 | Unexpected. Never contains stack traces in the response. |
+| Code               | HTTP | Meaning                                                            |
+| ------------------ | ---- | ------------------------------------------------------------------ |
+| `VALIDATION_ERROR` | 400  | Zod parse failed. `details` is the issue list.                     |
+| `UNAUTHORIZED`     | 401  | No auth or expired/invalid token.                                  |
+| `FORBIDDEN`        | 403  | Authenticated but not allowed.                                     |
+| `NOT_FOUND`        | 404  | Resource does not exist.                                           |
+| `CONFLICT`         | 409  | Duplicate or state conflict (room code collision, already joined). |
+| `RATE_LIMITED`     | 429  | Too many requests. `details.retryAfter` in seconds.                |
+| `INTERNAL`         | 500  | Unexpected. Never contains stack traces in the response.           |
 
 One `AppError` subclass per code lives in `apps/api/src/shared/errors/`. The global error middleware maps the thrown error → envelope + status.
 
@@ -115,11 +116,13 @@ One `AppError` subclass per code lives in `apps/api/src/shared/errors/`. The glo
 Cursor-based, never offset-based.
 
 **Request:**
+
 ```
 GET /api/v1/leaderboard?cursor=clx0abc&limit=20
 ```
 
 **Response:**
+
 ```json
 {
   "data": {
@@ -256,9 +259,7 @@ describe('POST /api/v1/rooms', () => {
 
     expect(res.status).toBe(400);
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
-    expect(res.body.error.details).toContainEqual(
-      expect.objectContaining({ path: ['boardSize'] })
-    );
+    expect(res.body.error.details).toContainEqual(expect.objectContaining({ path: ['boardSize'] }));
   });
 
   it('returns 401 UNAUTHORIZED when no auth cookie is present', async () => {
@@ -289,18 +290,18 @@ Socket tests follow the same Arrange/Act/Assert shape, with a `makeSocketClient(
 
 This table is the source of truth. **When you add or change an endpoint, you update this table in the same PR.** CI runs a grep check: every router handler must have a matching row.
 
-| Method | Path | Auth | Body schema | Response | Rate limit |
-| --- | --- | --- | --- | --- | --- |
-| POST | `/api/v1/auth/register` | — | `registerSchema` | `{ data: { user } }` | 5/min/ip |
-| POST | `/api/v1/auth/login` | — | `loginSchema` | `{ data: { user } }` (sets cookies) | 10/min/ip |
-| POST | `/api/v1/auth/refresh` | refresh cookie | — | `{ data: { user } }` (rotates cookies) | 30/min/ip |
-| POST | `/api/v1/auth/logout` | access cookie | — | 204 | — |
-| GET | `/api/v1/users/me` | access | — | `{ data: { user } }` | — |
-| GET | `/api/v1/users/:id` | access | — | `{ data: { user } }` | — |
-| POST | `/api/v1/rooms` | access | `createRoomSchema` | `{ data: { room } }` | 20/min/user |
-| GET | `/api/v1/rooms/:code` | access | — | `{ data: { room } }` | — |
-| GET | `/api/v1/games/:id` | access | — | `{ data: { game } }` | — |
-| GET | `/api/v1/leaderboard` | — | query: `{ cursor?, limit? }` | `{ data: { items, nextCursor } }` | 60/min/ip |
+| Method | Path                    | Auth           | Body schema                  | Response                               | Rate limit  |
+| ------ | ----------------------- | -------------- | ---------------------------- | -------------------------------------- | ----------- |
+| POST   | `/api/v1/auth/register` | —              | `registerSchema`             | `{ data: { user } }`                   | 5/min/ip    |
+| POST   | `/api/v1/auth/login`    | —              | `loginSchema`                | `{ data: { user } }` (sets cookies)    | 10/min/ip   |
+| POST   | `/api/v1/auth/refresh`  | refresh cookie | —                            | `{ data: { user } }` (rotates cookies) | 30/min/ip   |
+| POST   | `/api/v1/auth/logout`   | access cookie  | —                            | 204                                    | —           |
+| GET    | `/api/v1/users/me`      | access         | —                            | `{ data: { user } }`                   | —           |
+| GET    | `/api/v1/users/:id`     | access         | —                            | `{ data: { user } }`                   | —           |
+| POST   | `/api/v1/rooms`         | access         | `createRoomSchema`           | `{ data: { room } }`                   | 20/min/user |
+| GET    | `/api/v1/rooms/:code`   | access         | —                            | `{ data: { room } }`                   | —           |
+| GET    | `/api/v1/games/:id`     | access         | —                            | `{ data: { game } }`                   | —           |
+| GET    | `/api/v1/leaderboard`   | —              | query: `{ cursor?, limit? }` | `{ data: { items, nextCursor } }`      | 60/min/ip   |
 
 (Updated as endpoints are added. Anything live must appear here.)
 
@@ -308,17 +309,15 @@ This table is the source of truth. **When you add or change an endpoint, you upd
 
 ## 14. Socket Event Catalog
 
-| Event | Direction | Payload schema | Ack? | Auth |
-| --- | --- | --- | --- | --- |
-| `queue:join` | C→S | `queueJoinSchema` | yes | required |
-| `queue:matched` | S→C | `queueMatchedSchema` | no | — |
-| `queue:leave` | C→S | — | yes | required |
-| `room:join` | C→S | `{ code }` | yes | required |
-| `room:leave` | C→S | `{ code }` | yes | required |
-| `game:move` | C→S | `gameMoveSchema` (`{ gameId, row, col }`) | yes (validates) | required |
-| `game:update` | S→C | `{ gameId, moveToken }` | no | — |
-| `game:sync` | S→C | `{ gameId, tgn, currentTurn }` | no | — |
-| `game:end` | S→C | `{ gameId, winnerId, ratingChanges }` | no | — |
+All payload types are defined in `packages/shared/src/sockets.ts`. Import from there — never define payload shapes locally in either app.
+
+| Event           | Direction | Payload                                                                                      | Auth     |
+| --------------- | --------- | -------------------------------------------------------------------------------------------- | -------- |
+| `queue:join`    | C→S       | —                                                                                            | required |
+| `queue:matched` | S→C       | `MatchedPayload` (`gameId, yourSymbol, yourRating, opponentUsername, opponentRating`)        | —        |
+| `game:move`     | C→S       | `{ gameId: string; row: number; col: number }`                                               | required |
+| `game:update`   | S→C       | `GameUpdatePayload` (`gameId, tgnToken, nextPlayer: 'X'\|'O'`)                               | —        |
+| `game:end`      | S→C       | `GameEndPayload` (`gameId, winner: 'X'\|'O'\|'draw', ratingDelta: { X: number; O: number }`) | —        |
 
 Same rule as REST: this table is kept in sync with handlers in the same PR.
 
