@@ -17,13 +17,13 @@ export function GameResultOverlay({ result, mySymbol, onPlayAgain }: Props) {
   const heading = isDraw ? "It's a Draw!" : won ? 'You Win!' : 'You Lose';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bgblack/60 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
       <div className="bg-background border rounded-xl shadow-xl p-8 flex flex-col items-center gap-5 min-w-[280px]">
         <h2 className="text-3xl font-bold">{heading}</h2>
 
         {/* ELO delta */}
 
-        <span className={`text-lg font-semibold ${delta >= 0 ? 'text-green500' : 'text-red-500'}`}>
+        <span className={`text-lg font-semibold ${delta >= 0 ? 'text-green-500' : 'text-red-500'}`}>
           {delta >= 0 ? '+' : ''}
           {delta} ELO
         </span>
