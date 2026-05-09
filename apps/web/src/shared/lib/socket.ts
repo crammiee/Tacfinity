@@ -3,7 +3,6 @@ import type { ClientToServerEvents, ServerToClientEvents } from '@tacfinity/shar
 import { useAuthStore } from '@/features/auth/store';
 
 export const socket = io(import.meta.env.VITE_API_URL ?? 'http://localhost:3001', {
-  withCredentials: true,
   autoConnect: false,
   transports: ['polling', 'websocket'],
   auth: (cb) => cb({ token: useAuthStore.getState().accessToken }),
