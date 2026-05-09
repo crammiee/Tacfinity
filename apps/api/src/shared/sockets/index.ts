@@ -18,8 +18,9 @@ export function initSockets(httpServer: HttpServer): void {
 
   io.use(async (socket, next) => {
     try {
+      const authToken = socket.handshake.auth?.token as string | undefined;
       const rawCookie = socket.handshake.headers.cookie ?? '';
-      const token = parseCookie(rawCookie, 'access_token');
+      const token = authToken || parseCookie(rawCookie, 'access_token');
 
       if (!token) {
         return next(new Error('UNAUTHORIZED'));

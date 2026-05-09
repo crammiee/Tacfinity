@@ -10,9 +10,10 @@ export function useBootstrapAuth() {
     (
       apiClient.post('/api/v1/auth/refresh', {}) as unknown as Promise<{
         user: { id: string; username: string; email: string; rating: number };
+        accessToken: string;
       }>
     )
-      .then((data) => setUser(data.user))
+      .then((data) => setUser(data.user, data.accessToken))
       .catch(() => {})
       .finally(() => setBootstrapping(false));
   }, []);

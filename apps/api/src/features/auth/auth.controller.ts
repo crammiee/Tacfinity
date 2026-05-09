@@ -32,7 +32,7 @@ export const login: RequestHandler = asyncHandler(async (req: Request, res: Resp
   const input = loginSchema.parse(req.body);
   const { user, accessToken, refreshToken } = await authService.login(input);
   setAuthCookies(res, accessToken, refreshToken);
-  ok(res, { user });
+  ok(res, { user, accessToken });
 });
 
 export const refresh: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
@@ -43,7 +43,7 @@ export const refresh: RequestHandler = asyncHandler(async (req: Request, res: Re
 
   const result = await authService.refresh(refreshToken);
   setAuthCookies(res, result.accessToken, result.refreshToken);
-  ok(res, { user: result.user });
+  ok(res, { user: result.user, accessToken: result.accessToken });
 });
 
 export const logout: RequestHandler = asyncHandler(async (_req: Request, res: Response) => {
