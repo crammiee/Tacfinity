@@ -1,14 +1,9 @@
-import type { Server } from 'socket.io';
-import type { ClientToServerEvents, ServerToClientEvents } from '@tacfinity/shared';
 import { type AuthedSocket } from '../../shared/types/socket.js';
 import { gamesService } from '../games/games.service.js';
 
 const queue = new Set<AuthedSocket>();
 
-async function joinQueue(
-  socket: AuthedSocket,
-  io: Server<ClientToServerEvents, ServerToClientEvents>
-): Promise<void> {
+async function joinQueue(socket: AuthedSocket): Promise<void> {
   queue.add(socket);
 
   if (queue.size < 2) return;
@@ -17,18 +12,14 @@ async function joinQueue(
   queue.delete(s1);
   queue.delete(s2);
 
-  await pair(s1, s2, io);
+  await pair(s1, s2);
 }
 
 function cancelQueue(socket: AuthedSocket): void {
   queue.delete(socket);
 }
 
-async function pair(
-  s1: AuthedSocket,
-  s2: AuthedSocket,
-  _io: Server<ClientToServerEvents, ServerToClientEvents>
-): Promise<void> {
+async function pair(s1: AuthedSocket, s2: AuthedSocket): Promise<void> {
   const { gameId } = await gamesService.createGameSession(s1.data.user, s2.data.user);
   const room = `game:${gameId}`;
 
