@@ -6,6 +6,7 @@ import { useAuthStore } from '@/features/auth/store';
 import type { PlayerInfo } from '../types';
 
 type MatchStatus = 'idle' | 'searching' | 'playing' | 'ended';
+type DebugInfo = { socketError: string | null; hasToken: boolean };
 
 export function useGameSocket() {
   const updateRating = useAuthStore((s) => s.updateRating);
@@ -15,6 +16,7 @@ export function useGameSocket() {
   const [activePlayer, setActivePlayer] = useState<'X' | 'O' | null>(null);
   const [moves, setMoves] = useState<string[]>([]);
   const [result, setResult] = useState<GameEndPayload | null>(null);
+  const [debug, setDebug] = useState<DebugInfo>({ socketError: null, hasToken: false });
   const [players, setPlayers] = useState<{ X: PlayerInfo | null; O: PlayerInfo | null }>({
     X: null,
     O: null,
@@ -64,7 +66,9 @@ export function useGameSocket() {
       }
     });
 
-    socket.on('connect_error', () => {
+    socket.on('connect_error', (err) => {
+      console.error('[socket] connect_error:', err.message, err);
+      setDebug({ socketError: err.message, hasToken: !!useAuthStore.getState().accessToken });
       setMatchStatus('idle');
     });
 
@@ -104,6 +108,7 @@ export function useGameSocket() {
     moves,
     players,
     result,
+    debug,
     joinQueue,
     cancelQueue,
     makeMove,

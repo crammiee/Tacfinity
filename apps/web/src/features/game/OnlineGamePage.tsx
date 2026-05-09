@@ -14,6 +14,7 @@ export function OnlineGamePage() {
     moves,
     players,
     result,
+    debug,
     joinQueue,
     cancelQueue,
     makeMove,
@@ -39,6 +40,11 @@ export function OnlineGamePage() {
             <Button size="lg" onClick={joinQueue}>
               Find Match
             </Button>
+            {debug.socketError && (
+              <p className="text-xs text-destructive bg-destructive/10 px-3 py-2 rounded max-w-xs text-center">
+                err: {debug.socketError} | token: {String(debug.hasToken)}
+              </p>
+            )}
           </div>
         )}
 
