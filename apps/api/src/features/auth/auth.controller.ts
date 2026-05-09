@@ -5,10 +5,12 @@ import { UnauthorizedError } from '../../shared/errors/AppError.js';
 import { ok } from '../../shared/utils/respond.js';
 import { authService } from './auth.service.js';
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 const COOKIE_OPTIONS: CookieOptions = {
   httpOnly: true,
-  sameSite: 'strict',
-  secure: process.env.NODE_ENV === 'production',
+  sameSite: isProduction ? 'none' : 'strict',
+  secure: isProduction,
   path: '/',
 };
 
