@@ -66,13 +66,26 @@ export function useGameSocket() {
       }
     });
 
+    socket.on('connect', () => {
+      setDebug((d) => ({ ...d, socketError: 'connected ok' }));
+    });
+
+    socket.on('disconnect', (reason) => {
+      setDebug((d) => ({ ...d, socketError: `disconnected: ${reason}` }));
+    });
+
     socket.on('connect_error', (err) => {
       console.error('[socket] connect_error:', err.message, err);
-      setDebug({ socketError: err.message, hasToken: !!useAuthStore.getState().accessToken });
+      setDebug({
+        socketError: `connect_error: ${err.message}`,
+        hasToken: !!useAuthStore.getState().accessToken,
+      });
       setMatchStatus('idle');
     });
 
     return () => {
+      socket.off('connect');
+      socket.off('disconnect');
       socket.off('connect_error');
       socket.off('queue:matched');
       socket.off('game:update');
