@@ -41,7 +41,7 @@ export function initSockets(httpServer: HttpServer): void {
 
   io.on('connection', (socket) => {
     const authedSocket = socket as AuthedSocket;
-    registerMatchmakingHandlers(authedSocket, io);
+    registerMatchmakingHandlers(authedSocket);
     registerGameHandlers(authedSocket, io);
   });
 }

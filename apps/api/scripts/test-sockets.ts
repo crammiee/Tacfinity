@@ -8,36 +8,15 @@
  */
 
 import { io, type Socket } from 'socket.io-client';
+import type {
+  MatchedPayload,
+  GameUpdatePayload,
+  GameEndPayload,
+  GameErrorPayload,
+} from '@tacfinity/shared';
 
 const HTTP_BASE = 'http://localhost:3001';
 const AUTH_BASE = `${HTTP_BASE}/api/v1/auth`;
-
-type QueueMatchedPayload = {
-  gameId: string;
-  yourSymbol: 'X' | 'O';
-  yourRating: number;
-  opponentUsername: string;
-  opponentRating: number;
-};
-
-type GameUpdatePayload = {
-  gameId: string;
-  tgnToken: string;
-  nextPlayer: 'X' | 'O';
-};
-
-type GameEndPayload = {
-  gameId: string;
-  winner: 'X' | 'O' | 'draw';
-  ratingDelta: { X: number; O: number };
-};
-
-type GameErrorPayload = {
-  error: {
-    code: string;
-    message: string;
-  };
-};
 
 let passed = 0;
 let failed = 0;
@@ -144,8 +123,8 @@ async function main(): Promise<void> {
   const a = await makeAuthedSocket('socka');
   const b = await makeAuthedSocket('sockb');
 
-  const matchedAPromise = waitForEvent<QueueMatchedPayload>(a.socket, 'queue:matched');
-  const matchedBPromise = waitForEvent<QueueMatchedPayload>(b.socket, 'queue:matched');
+  const matchedAPromise = waitForEvent<MatchedPayload>(a.socket, 'queue:matched');
+  const matchedBPromise = waitForEvent<MatchedPayload>(b.socket, 'queue:matched');
 
   a.socket.emit('queue:join');
   b.socket.emit('queue:join');
