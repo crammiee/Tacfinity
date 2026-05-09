@@ -16,7 +16,8 @@ export function TopBar() {
         <span className="font-medium">{user?.username}</span>
       </Link>
       <span className="text-sm text-muted-foreground">
-        ♟ <span className="font-semibold text-foreground">1 000</span> ELO
+        ♟ <span className="font-semibold text-foreground">{user?.rating?.toLocaleString()}</span>{' '}
+        ELO
       </span>
     </header>
   );

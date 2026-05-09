@@ -2,11 +2,13 @@ import { useEffect, useRef, useState } from 'react';
 import { socket } from '@/shared/lib/socket';
 import type { Cell } from '@tacfinity/shared';
 import type { GameEndPayload, MatchedPayload } from '@tacfinity/shared';
+import { useAuthStore } from '@/features/auth/store';
 import type { PlayerInfo } from '../types';
 
 type MatchStatus = 'idle' | 'searching' | 'playing' | 'ended';
 
 export function useGameSocket() {
+  const updateRating = useAuthStore((s) => s.updateRating);
   const [matchStatus, setMatchStatus] = useState<MatchStatus>('idle');
   const [board, setBoard] = useState<Cell[]>(Array(121).fill(null));
   const [mySymbol, setMySymbol] = useState<'X' | 'O' | null>(null);
@@ -18,10 +20,12 @@ export function useGameSocket() {
     O: null,
   });
   const gameIdRef = useRef<string | null>(null);
+  const mySymbolRef = useRef<'X' | 'O' | null>(null);
 
   useEffect(() => {
     socket.on('queue:matched', (data: MatchedPayload) => {
       gameIdRef.current = data.gameId;
+      mySymbolRef.current = data.yourSymbol;
       setMySymbol(data.yourSymbol);
       setPlayers({
         [data.yourSymbol]: { username: 'You', rating: data.yourRating },
@@ -55,9 +59,17 @@ export function useGameSocket() {
       setResult(data);
       setActivePlayer(null);
       setMatchStatus('ended');
+      if (mySymbolRef.current) {
+        updateRating(data.ratingDelta[mySymbolRef.current]);
+      }
+    });
+
+    socket.on('connect_error', () => {
+      setMatchStatus('idle');
     });
 
     return () => {
+      socket.off('connect_error');
       socket.off('queue:matched');
       socket.off('game:update');
       socket.off('game:end');
@@ -66,8 +78,12 @@ export function useGameSocket() {
 
   function joinQueue() {
     setMatchStatus('searching');
-    socket.connect();
-    socket.emit('queue:join');
+    if (socket.connected) {
+      socket.emit('queue:join');
+    } else {
+      socket.once('connect', () => socket.emit('queue:join'));
+      socket.connect();
+    }
   }
 
   function cancelQueue() {
