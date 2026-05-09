@@ -85,6 +85,7 @@ export function useGameSocket() {
 
   function joinQueue() {
     setMatchStatus('searching');
+    socket.auth = { token: useAuthStore.getState().accessToken };
     if (socket.connected) {
       socket.emit('queue:join');
     } else {
