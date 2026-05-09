@@ -2,12 +2,12 @@ import type { Difficulty } from '../types';
 import type { GameState } from '../game-logic/game-state';
 import type { WinDetector } from '../game-logic/win-detector';
 import type { AIPlayer } from './ai-player';
-import { BoardEvaluator } from './board-evaluator';
-import { EasyAI } from './easy-ai';
-import { HardAI } from './hard-ai';
-import { HeuristicEngine } from './heuristic-engine';
-import { MediumAI } from './medium-ai';
-import { MinimaxEngine } from './minimax-engine';
+import { BoardEvaluator } from './board-evaluator.js';
+import { EasyAI } from './easy-ai.js';
+import { HardAI } from './hard-ai.js';
+import { HeuristicEngine } from './heuristic-engine.js';
+import { MediumAI } from './medium-ai.js';
+import { MinimaxEngine } from './minimax-engine.js';
 
 export class AIFactory {
   static create(difficulty: Difficulty, state: GameState, winDetector: WinDetector): AIPlayer {

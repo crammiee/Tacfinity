@@ -1,7 +1,7 @@
 import type { GameState } from '../game-logic/game-state';
 import type { WinDetector } from '../game-logic/win-detector';
 import type { Player } from '../types';
-import { AIPlayer } from './ai-player';
+import { AIPlayer } from './ai-player.js';
 import type { MinimaxEngine } from './minimax-engine';
 
 export class EasyAI extends AIPlayer {
