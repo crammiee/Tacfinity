@@ -1,5 +1,13 @@
-import { PlayerSymbol, RoomStatus, RoomType } from '@prisma/client';
+import { PlayerSymbol, RoomStatus, RoomType, type Prisma } from '@prisma/client';
 import { db } from '../../shared/db/index.js';
+
+async function generateUniqueRoomCode(tx: Prisma.TransactionClient): Promise<string> {
+  for (;;) {
+    const code = `MM-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+    const existing = await tx.room.findUnique({ where: { code } });
+    if (!existing) return code;
+  }
+}
 
 export const gamesRepository = {
   async createRoomAndGame(
@@ -11,7 +19,7 @@ export const gamesRepository = {
     return db.$transaction(async (tx) => {
       const room = await tx.room.create({
         data: {
-          code: `MM-${Math.random().toString(36).slice(2, 8).toUpperCase()}`,
+          code: await generateUniqueRoomCode(tx),
           hostId: xUserId,
           boardSize: 11,
           winCondition: 5,
