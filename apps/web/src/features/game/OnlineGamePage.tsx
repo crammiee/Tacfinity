@@ -1,56 +1,93 @@
+import { useGameSocket } from './hooks/useGameSocket';
+import { GameBoard } from './components/GameBoard';
+import { MatchmakingTimer } from './components/MatchmakingTimer';
+import { RightPanel } from './components/RightPanel';
+import { GameResultOverlay } from './components/GameResultOverlay';
 import { Button } from '@/shared/ui/button';
-import { useAuth } from '@/features/auth/useAuth';
 
 export function OnlineGamePage() {
-  const { user } = useAuth();
+  const {
+    matchStatus,
+    board,
+    mySymbol,
+    activePlayer,
+    moves,
+    players,
+    result,
+    joinQueue,
+    cancelQueue,
+    makeMove,
+  } = useGameSocket();
+
+  function handleCellClick(idx: number) {
+    // Only send move when it is your turn
+    if (activePlayer !== mySymbol) return;
+    const row = Math.floor(idx / 11);
+    const col = idx % 11;
+    makeMove(row, col);
+  }
 
   return (
-    <div className="flex flex-1 h-full">
+    <div className="flex flex-1 h-full relative">
       {/* Center — board area */}
       <div className="flex flex-1 flex-col items-center justify-center gap-4 p-6">
-        <PlayerLabel username="Searching..." rating={null} />
+        {matchStatus === 'idle' && (
+          <div className="flex flex-col items-center gap-4">
+            <p className="text-muted-foreground text-sm">
+              Find an opponent and start a ranked game.
+            </p>
+            <Button size="lg" onClick={joinQueue}>
+              Find Match
+            </Button>
+          </div>
+        )}
 
-        <BoardPlaceholder />
+        {matchStatus === 'searching' && (
+          <div className="flex flex-col items-center gap-4">
+            <MatchmakingTimer searching />
+            <Button variant="outline" onClick={cancelQueue}>
+              Cancel
+            </Button>
+          </div>
+        )}
 
-        <PlayerLabel username={user?.username ?? 'You'} rating={1000} isMe />
+        {(matchStatus === 'playing' || matchStatus === 'ended') && (
+          <>
+            <p className="text-sm text-muted-foreground">
+              {matchStatus === 'playing'
+                ? activePlayer === mySymbol
+                  ? 'Your turn'
+                  : "Opponent's turn"
+                : result?.winner === mySymbol
+                  ? 'You won!'
+                  : result?.winner === 'draw'
+                    ? "It's a draw!"
+                    : 'You lost.'}
+            </p>
+            <GameBoard
+              board={board}
+              winCells={[]}
+              disabled={matchStatus === 'ended' || activePlayer !== mySymbol}
+              onCellClick={handleCellClick}
+            />
+          </>
+        )}
       </div>
 
       {/* Right panel */}
-      <aside className="w-64 shrink-0 border-l flex flex-col items-center justify-center gap-4 p-6">
-        <Button size="lg" className="w-full">
-          Start Game
-        </Button>
-      </aside>
-    </div>
-  );
-}
-
-function PlayerLabel({
-  username,
-  rating,
-  isMe = false,
-}: {
-  username: string;
-  rating: number | null;
-  isMe?: boolean;
-}) {
-  return (
-    <div className="flex items-center gap-2 text-sm w-full max-w-[440px]">
-      <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center text-xs font-bold uppercase">
-        {username[0]}
-      </div>
-      <span className={`font-medium ${isMe ? '' : 'text-muted-foreground'}`}>{username}</span>
-      {rating !== null && (
-        <span className="ml-auto text-muted-foreground">♟ {rating.toLocaleString()}</span>
+      {(matchStatus === 'playing' || matchStatus === 'ended') && (
+        <RightPanel
+          moves={moves}
+          mySymbol={mySymbol}
+          players={players}
+          activePlayer={activePlayer}
+        />
       )}
-    </div>
-  );
-}
 
-function BoardPlaceholder() {
-  return (
-    <div className="border-2 border-border rounded-lg w-[440px] h-[440px] flex items-center justify-center text-muted-foreground text-sm">
-      11 × 11 board
+      {/* Result overlay — rendered on top of the board */}
+      {matchStatus === 'ended' && result && mySymbol && (
+        <GameResultOverlay result={result} mySymbol={mySymbol} onPlayAgain={joinQueue} />
+      )}
     </div>
   );
 }
