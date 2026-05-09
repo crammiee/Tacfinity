@@ -23,11 +23,11 @@ export const useAuthStore = create<AuthState>((set) => ({
   isLoggedIn: false,
   isBootstrapping: true,
   setUser: (user, accessToken) => {
-    sessionStorage.setItem('access_token', accessToken);
+    localStorage.setItem('access_token', accessToken);
     set({ user, accessToken, isLoggedIn: true });
   },
   clearUser: () => {
-    sessionStorage.removeItem('access_token');
+    localStorage.removeItem('access_token');
     set({ user: null, accessToken: null, isLoggedIn: false });
   },
   setBootstrapping: (v) => set({ isBootstrapping: v }),

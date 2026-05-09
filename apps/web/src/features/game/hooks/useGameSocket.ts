@@ -10,7 +10,6 @@ type MatchStatus = 'idle' | 'searching' | 'playing' | 'ended';
 export function useGameSocket() {
   const updateRating = useAuthStore((s) => s.updateRating);
   const [matchStatus, setMatchStatus] = useState<MatchStatus>('idle');
-  const [dbg, setDbg] = useState('');
   const [board, setBoard] = useState<Cell[]>(Array(121).fill(null));
   const [mySymbol, setMySymbol] = useState<'X' | 'O' | null>(null);
   const [activePlayer, setActivePlayer] = useState<'X' | 'O' | null>(null);
@@ -65,20 +64,15 @@ export function useGameSocket() {
       }
     });
 
-    socket.on('connect', () => setDbg('connected'));
-
     socket.on('disconnect', (reason) => {
-      setDbg(`disc:${reason}`);
       if (reason !== 'io client disconnect') setMatchStatus('idle');
     });
 
-    socket.on('connect_error', (err) => {
-      setDbg(`err:${err.message}`);
+    socket.on('connect_error', () => {
       setMatchStatus('idle');
     });
 
     return () => {
-      socket.off('connect');
       socket.off('disconnect');
       socket.off('connect_error');
       socket.off('queue:matched');
@@ -109,7 +103,6 @@ export function useGameSocket() {
   }
 
   return {
-    dbg,
     matchStatus,
     board,
     mySymbol,

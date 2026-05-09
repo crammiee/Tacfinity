@@ -7,7 +7,7 @@ export function useBootstrapAuth() {
   const setBootstrapping = useAuthStore((s) => s.setBootstrapping);
 
   useEffect(() => {
-    const cachedToken = sessionStorage.getItem('access_token');
+    const cachedToken = localStorage.getItem('access_token');
     const config = cachedToken ? { headers: { Authorization: `Bearer ${cachedToken}` } } : {};
 
     (
@@ -18,7 +18,7 @@ export function useBootstrapAuth() {
     )
       .then((data) => setUser(data.user, data.accessToken))
       .catch(() => {
-        sessionStorage.removeItem('access_token');
+        localStorage.removeItem('access_token');
       })
       .finally(() => setBootstrapping(false));
   }, []);
