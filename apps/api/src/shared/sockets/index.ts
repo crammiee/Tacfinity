@@ -1,6 +1,7 @@
 import type { Server as HttpServer } from 'http';
 import { Server } from 'socket.io';
 import type { ClientToServerEvents, ServerToClientEvents } from '@tacfinity/shared';
+import { env } from '../../config/env.js';
 import { authService } from '../../features/auth/auth.service.js';
 import { authRepository } from '../../features/auth/auth.repository.js';
 import { type AuthedSocket } from '../types/socket.js';
@@ -10,7 +11,7 @@ import { registerGameHandlers } from '../../features/games/games.sockets.js';
 export function initSockets(httpServer: HttpServer): void {
   const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
     cors: {
-      origin: true,
+      origin: env.CLIENT_URL ?? true,
       credentials: true,
     },
   });
