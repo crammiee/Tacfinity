@@ -109,7 +109,7 @@ export function BotGamePage() {
   })();
 
   return (
-    <div className="flex flex-1 h-full">
+    <div className="flex flex-col md:flex-row flex-1 h-full">
       <div className="flex flex-1 flex-col items-center justify-center gap-4 p-6">
         <PlayerLabel username={bot.name} rating={bot.rating} />
 
@@ -133,7 +133,7 @@ export function BotGamePage() {
         <PlayerLabel username={user?.username ?? 'You'} rating={1000} isMe />
       </div>
 
-      <aside className="w-64 shrink-0 border-l flex flex-col justify-center gap-6 p-6">
+      <aside className="w-full md:w-64 md:shrink-0 border-t md:border-t-0 md:border-l flex flex-col justify-center gap-6 p-6">
         <div className="flex flex-col gap-2">
           <p className="text-sm font-semibold mb-1">Difficulty</p>
           {(['easy', 'medium', 'hard'] as Difficulty[]).map((d) => (

@@ -28,7 +28,7 @@ export function OnlineGamePage() {
   }
 
   return (
-    <div className="flex flex-1 h-full relative">
+    <div className="flex flex-col md:flex-row flex-1 h-full relative">
       {/* Center — board area */}
       <div className="flex flex-1 flex-col items-center justify-center gap-4 p-6">
         {matchStatus === 'idle' && (
