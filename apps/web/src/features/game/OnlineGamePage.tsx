@@ -4,9 +4,12 @@ import { MatchmakingTimer } from './components/MatchmakingTimer';
 import { RightPanel } from './components/RightPanel';
 import { GameResultOverlay } from './components/GameResultOverlay';
 import { Button } from '@/shared/ui/button';
+import { useAuthStore } from '@/features/auth/store';
 
 export function OnlineGamePage() {
+  const hasToken = useAuthStore((s) => !!s.accessToken);
   const {
+    dbg,
     matchStatus,
     board,
     mySymbol,
@@ -29,6 +32,12 @@ export function OnlineGamePage() {
 
   return (
     <div className="flex flex-col md:flex-row flex-1 h-full relative">
+      {dbg && (
+        <p className="fixed top-0 left-0 right-0 z-50 bg-black text-white text-xs p-2 text-center break-all">
+          {dbg} | tok:{hasToken ? 'ok' : 'NULL'}
+        </p>
+      )}
+
       {/* Center — board area */}
       <div className="flex flex-1 flex-col items-center justify-center gap-4 p-6">
         {matchStatus === 'idle' && (
