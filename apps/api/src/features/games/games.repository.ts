@@ -1,5 +1,5 @@
 import { PlayerSymbol, RoomStatus, RoomType } from '@prisma/client';
-import { db } from '../../../shared/db/index.js';
+import { db } from '../../shared/db/index.js';
 
 export const gamesRepository = {
   async createRoomAndGame(
@@ -41,10 +41,8 @@ export const gamesRepository = {
     moves: string;
     winnerId: string | null;
     xId: string;
-    xRatingBefore: number;
     xRatingAfter: number;
     oId: string;
-    oRatingBefore: number;
     oRatingAfter: number;
   }) {
     await db.$transaction([
@@ -59,11 +57,11 @@ export const gamesRepository = {
       }),
       db.gamePlayer.update({
         where: { gameId_userId: { gameId: opts.gameId, userId: opts.xId } },
-        data: { ratingBefore: opts.xRatingBefore, ratingAfter: opts.xRatingAfter },
+        data: { ratingAfter: opts.xRatingAfter },
       }),
       db.gamePlayer.update({
         where: { gameId_userId: { gameId: opts.gameId, userId: opts.oId } },
-        data: { ratingBefore: opts.oRatingBefore, ratingAfter: opts.oRatingAfter },
+        data: { ratingAfter: opts.oRatingAfter },
       }),
       db.user.update({ where: { id: opts.xId }, data: { rating: opts.xRatingAfter } }),
       db.user.update({ where: { id: opts.oId }, data: { rating: opts.oRatingAfter } }),

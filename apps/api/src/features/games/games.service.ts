@@ -11,7 +11,7 @@ import {
   type ClientToServerEvents,
   type ServerToClientEvents,
 } from '@tacfinity/shared';
-import { ValidationError } from '../../../shared/errors/AppError.js';
+import { ValidationError } from '../../shared/errors/AppError.js';
 import { gamesRepository } from './games.repository.js';
 
 interface GameSession {
@@ -33,7 +33,7 @@ async function createGameSession(xUser: User, oUser: User): Promise<{ gameId: st
   );
 
   const gs = new GameState();
-  gs.configure({ cols: 11, rows: 11, winLen: 5, mode: 'ai', difficulty: 'hard', humanSide: 'X' });
+  gs.configure({ cols: 11, rows: 11, winLen: 5, mode: '2p', difficulty: 'hard', humanSide: 'X' });
   gs.resetBoard();
 
   sessions.set(game.id, {
@@ -96,6 +96,21 @@ async function applyMove(
   });
 }
 
+async function handlePlayerDisconnect(
+  socketUserId: string,
+  io: Server<ClientToServerEvents, ServerToClientEvents>
+): Promise<void> {
+  for (const [, session] of sessions) {
+    const { players } = session;
+    if (players.X.id === socketUserId || players.O.id === socketUserId) {
+      const disconnectedSymbol: Player = players.X.id === socketUserId ? 'X' : 'O';
+      const winner: Player = disconnectedSymbol === 'X' ? 'O' : 'X';
+      await endGame(session, winner, io);
+      return;
+    }
+  }
+}
+
 async function endGame(
   session: GameSession,
   winner: Player | null,
@@ -127,10 +142,8 @@ async function endGame(
     moves: serializeGame(moves),
     winnerId: winner ? players[winner].id : null,
     xId: players.X.id,
-    xRatingBefore: xBefore,
     xRatingAfter: xAfter,
     oId: players.O.id,
-    oRatingBefore: oBefore,
     oRatingAfter: oAfter,
   });
 
@@ -149,4 +162,5 @@ async function endGame(
 export const gamesService = {
   createGameSession,
   applyMove,
+  handlePlayerDisconnect,
 };

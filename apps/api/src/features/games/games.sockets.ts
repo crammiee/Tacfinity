@@ -1,20 +1,8 @@
-import type { User } from '@prisma/client';
-import type { Server, Socket } from 'socket.io';
+import type { Server } from 'socket.io';
 import type { ClientToServerEvents, ServerToClientEvents } from '@tacfinity/shared';
-import { AppError } from '../../../shared/errors/AppError.js';
+import { AppError } from '../../shared/errors/AppError.js';
+import { type AuthedSocket } from '../../shared/types/socket.js';
 import { gamesService } from './games.service.js';
-
-type AuthedSocket = Socket<ClientToServerEvents, ServerToClientEvents> & {
-  data: { user: User };
-};
-
-type GameErrorPayload = {
-  error: { code: string; message: string };
-};
-
-type GameErrorEmitter = {
-  emit(event: 'game:error', payload: GameErrorPayload): boolean;
-};
 
 export function registerGameHandlers(
   socket: AuthedSocket,
@@ -26,7 +14,15 @@ export function registerGameHandlers(
     } catch (err) {
       const code = err instanceof AppError ? err.code : 'INTERNAL';
       const message = err instanceof Error ? err.message : 'Server error';
-      (socket as unknown as GameErrorEmitter).emit('game:error', { error: { code, message } });
+      socket.emit('game:error', { error: { code, message } });
+    }
+  });
+
+  socket.on('disconnect', async () => {
+    try {
+      await gamesService.handlePlayerDisconnect(socket.data.user.id, io);
+    } catch {
+      // best-effort forfeit on disconnect
     }
   });
 }

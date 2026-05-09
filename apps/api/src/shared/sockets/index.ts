@@ -1,16 +1,12 @@
 import type { Server as HttpServer } from 'http';
-import { Server, type Socket } from 'socket.io';
-import type { User } from '@prisma/client';
+import { Server } from 'socket.io';
 import type { ClientToServerEvents, ServerToClientEvents } from '@tacfinity/shared';
 import { env } from '../../config/env.js';
 import { authService } from '../../features/auth/auth.service.js';
 import { authRepository } from '../../features/auth/auth.repository.js';
-import { registerMatchmakingHandlers } from '../../features/auth/matchmaking/matchmaking.sockets.js';
-import { registerGameHandlers } from '../../features/auth/games/games.sockets.js';
-
-type AuthedSocket = Socket<ClientToServerEvents, ServerToClientEvents> & {
-  data: { user: User };
-};
+import { type AuthedSocket } from '../types/socket.js';
+import { registerMatchmakingHandlers } from '../../features/matchmaking/matchmaking.sockets.js';
+import { registerGameHandlers } from '../../features/games/games.sockets.js';
 
 export function initSockets(httpServer: HttpServer): void {
   const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
@@ -20,7 +16,6 @@ export function initSockets(httpServer: HttpServer): void {
     },
   });
 
-  // Runs before every socket connection is accepted
   io.use(async (socket, next) => {
     try {
       const rawCookie = socket.handshake.headers.cookie ?? '';

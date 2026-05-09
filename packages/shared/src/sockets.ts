@@ -7,6 +7,7 @@ export interface ServerToClientEvents {
   'queue:matched': (payload: MatchedPayload) => void;
   'game:update': (payload: GameUpdatePayload) => void;
   'game:end': (payload: GameEndPayload) => void;
+  'game:error': (payload: GameErrorPayload) => void;
 }
 
 export interface MatchedPayload {
@@ -27,4 +28,8 @@ export interface GameEndPayload {
   gameId: string;
   winner: 'X' | 'O' | 'draw';
   ratingDelta: { X: number; O: number }; // signed — positive = gained, negative = lost
+}
+
+export interface GameErrorPayload {
+  error: { code: string; message: string };
 }

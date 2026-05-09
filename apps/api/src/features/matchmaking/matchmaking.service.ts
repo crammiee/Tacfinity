@@ -1,11 +1,7 @@
-import type { User } from '@prisma/client';
-import type { Server, Socket } from 'socket.io';
+import type { Server } from 'socket.io';
 import type { ClientToServerEvents, ServerToClientEvents } from '@tacfinity/shared';
+import { type AuthedSocket } from '../../shared/types/socket.js';
 import { gamesService } from '../games/games.service.js';
-
-export type AuthedSocket = Socket<ClientToServerEvents, ServerToClientEvents> & {
-  data: { user: User };
-};
 
 const queue = new Set<AuthedSocket>();
 
@@ -25,7 +21,7 @@ async function joinQueue(
 }
 
 function cancelQueue(socket: AuthedSocket): void {
-  queue.delete(socket); // idempotent
+  queue.delete(socket);
 }
 
 async function pair(
@@ -33,7 +29,6 @@ async function pair(
   s2: AuthedSocket,
   _io: Server<ClientToServerEvents, ServerToClientEvents>
 ): Promise<void> {
-  // X = first queued, O = second queued
   const { gameId } = await gamesService.createGameSession(s1.data.user, s2.data.user);
   const room = `game:${gameId}`;
 
