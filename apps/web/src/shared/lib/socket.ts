@@ -4,6 +4,6 @@ import { useAuthStore } from '@/features/auth/store';
 
 export const socket = io(import.meta.env.VITE_API_URL ?? 'http://localhost:3001', {
   autoConnect: false,
-  transports: ['websocket'],
+  transports: ['polling'],
   auth: (cb) => cb({ token: useAuthStore.getState().accessToken }),
 }) as import('socket.io-client').Socket<ServerToClientEvents, ClientToServerEvents>;
