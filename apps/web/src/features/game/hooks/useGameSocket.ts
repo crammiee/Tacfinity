@@ -6,7 +6,6 @@ import { useAuthStore } from '@/features/auth/store';
 import type { PlayerInfo } from '../types';
 
 type MatchStatus = 'idle' | 'searching' | 'playing' | 'ended';
-type DebugInfo = { socketError: string | null; hasToken: boolean };
 
 export function useGameSocket() {
   const updateRating = useAuthStore((s) => s.updateRating);
@@ -16,7 +15,6 @@ export function useGameSocket() {
   const [activePlayer, setActivePlayer] = useState<'X' | 'O' | null>(null);
   const [moves, setMoves] = useState<string[]>([]);
   const [result, setResult] = useState<GameEndPayload | null>(null);
-  const [debug, setDebug] = useState<DebugInfo>({ socketError: null, hasToken: false });
   const [players, setPlayers] = useState<{ X: PlayerInfo | null; O: PlayerInfo | null }>({
     X: null,
     O: null,
@@ -66,25 +64,17 @@ export function useGameSocket() {
       }
     });
 
-    socket.on('connect', () => {
-      setDebug((d) => ({ ...d, socketError: 'connected ok' }));
-    });
-
     socket.on('disconnect', (reason) => {
-      setDebug((d) => ({ ...d, socketError: `disconnected: ${reason}` }));
+      if (reason !== 'io client disconnect') {
+        setMatchStatus('idle');
+      }
     });
 
-    socket.on('connect_error', (err) => {
-      console.error('[socket] connect_error:', err.message, err);
-      setDebug({
-        socketError: `connect_error: ${err.message}`,
-        hasToken: !!useAuthStore.getState().accessToken,
-      });
+    socket.on('connect_error', () => {
       setMatchStatus('idle');
     });
 
     return () => {
-      socket.off('connect');
       socket.off('disconnect');
       socket.off('connect_error');
       socket.off('queue:matched');
@@ -121,7 +111,6 @@ export function useGameSocket() {
     moves,
     players,
     result,
-    debug,
     joinQueue,
     cancelQueue,
     makeMove,

@@ -14,7 +14,6 @@ export function OnlineGamePage() {
     moves,
     players,
     result,
-    debug,
     joinQueue,
     cancelQueue,
     makeMove,
@@ -32,12 +31,6 @@ export function OnlineGamePage() {
     <div className="flex flex-col md:flex-row flex-1 h-full relative">
       {/* Center — board area */}
       <div className="flex flex-1 flex-col items-center justify-center gap-4 p-6">
-        {debug.socketError && (
-          <p className="text-xs text-destructive bg-destructive/10 px-3 py-2 rounded max-w-xs text-center break-all">
-            {debug.socketError} | token: {String(debug.hasToken)}
-          </p>
-        )}
-
         {matchStatus === 'idle' && (
           <div className="flex flex-col items-center gap-4">
             <p className="text-muted-foreground text-sm">
