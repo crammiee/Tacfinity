@@ -9,7 +9,7 @@ export function useBootstrapAuth() {
   useEffect(() => {
     (
       apiClient.post('/api/v1/auth/refresh', {}) as unknown as Promise<{
-        user: { id: string; username: string; email: string };
+        user: { id: string; username: string; email: string; rating: number };
       }>
     )
       .then((data) => setUser(data.user))
