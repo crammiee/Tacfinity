@@ -5,7 +5,7 @@ import { useAuthStore } from './store';
 import type { RegisterInput, LoginInput } from '@tacfinity/shared';
 
 interface LoginResponse {
-  user: { id: string; username: string; email: string };
+  user: { id: string; username: string; email: string; rating: number };
 }
 
 export function useRegisterMutation() {

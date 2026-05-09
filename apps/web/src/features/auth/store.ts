@@ -4,6 +4,7 @@ interface User {
   id: string;
   username: string;
   email: string;
+  rating: number;
 }
 
 export interface AuthState {
@@ -13,6 +14,7 @@ export interface AuthState {
   setUser: (user: User) => void;
   clearUser: () => void;
   setBootstrapping: (v: boolean) => void;
+  updateRating: (delta: number) => void;
 }
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
@@ -21,4 +23,6 @@ export const useAuthStore = create<AuthState>((set) => ({
   setUser: (user) => set({ user, isLoggedIn: true }),
   clearUser: () => set({ user: null, isLoggedIn: false }),
   setBootstrapping: (v) => set({ isBootstrapping: v }),
+  updateRating: (delta) =>
+    set((s) => (s.user ? { user: { ...s.user, rating: s.user.rating + delta } } : s)),
 }));
