@@ -4,7 +4,6 @@ import { MatchmakingTimer } from './components/MatchmakingTimer';
 import { RightPanel } from './components/RightPanel';
 import { GameResultOverlay } from './components/GameResultOverlay';
 import { Button } from '@/shared/ui/button';
-// import { useAuth } from '@/features/auth/useAuth';
 
 export function OnlineGamePage() {
   const {
