@@ -9,7 +9,7 @@ export function Sidebar() {
   const logout = useLogoutMutation();
 
   return (
-    <aside className="w-56 shrink-0 min-h-screen flex flex-col border-r bg-background px-2 py-4">
+    <aside className="hidden md:flex w-56 shrink-0 min-h-screen flex-col border-r bg-background px-2 py-4">
       <Link to="/" className="font-bold text-lg px-3 mb-8 block">
         Tacfinity
       </Link>
