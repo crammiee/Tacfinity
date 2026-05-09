@@ -107,6 +107,19 @@ export const authService = {
     return { user: toPublicUser(user), ...signTokens(user.id) };
   },
 
+  async refreshFromAccessToken(accessToken: string): Promise<AuthResult> {
+    let userId: string;
+    try {
+      userId = extractUserId(jwt.verify(accessToken, env.JWT_ACCESS_SECRET));
+    } catch (err) {
+      if (err instanceof UnauthorizedError) throw err;
+      throw new UnauthorizedError('Invalid access token');
+    }
+    const user = await authRepository.findUserById(userId);
+    if (!user) throw new UnauthorizedError();
+    return { user: toPublicUser(user), ...signTokens(user.id) };
+  },
+
   verifyAccessToken(token: string): AccessTokenPayload {
     try {
       return { userId: extractUserId(jwt.verify(token, env.JWT_ACCESS_SECRET)) };

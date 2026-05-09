@@ -37,13 +37,24 @@ export const login: RequestHandler = asyncHandler(async (req: Request, res: Resp
 
 export const refresh: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
   const refreshToken = req.cookies?.refresh_token;
-  if (typeof refreshToken !== 'string' || refreshToken.length === 0) {
-    throw new UnauthorizedError();
+  if (typeof refreshToken === 'string' && refreshToken.length > 0) {
+    const result = await authService.refresh(refreshToken);
+    setAuthCookies(res, result.accessToken, result.refreshToken);
+    ok(res, { user: result.user, accessToken: result.accessToken });
+    return;
   }
 
-  const result = await authService.refresh(refreshToken);
-  setAuthCookies(res, result.accessToken, result.refreshToken);
-  ok(res, { user: result.user, accessToken: result.accessToken });
+  // Fallback for iOS where cross-origin cookies are blocked by ITP
+  const authHeader = req.headers.authorization;
+  if (typeof authHeader === 'string' && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.slice(7);
+    const result = await authService.refreshFromAccessToken(token);
+    setAuthCookies(res, result.accessToken, result.refreshToken);
+    ok(res, { user: result.user, accessToken: result.accessToken });
+    return;
+  }
+
+  throw new UnauthorizedError();
 });
 
 export const logout: RequestHandler = asyncHandler(async (_req: Request, res: Response) => {
