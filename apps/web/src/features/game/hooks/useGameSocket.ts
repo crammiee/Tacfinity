@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { socket } from '@/shared/lib/socket';
 import type { Cell } from '@tacfinity/shared';
-import type { GameEndPayload, MatchedPayload } from '@tacfinity/shared';
+import type { GameEndPayload, GameSyncPayload, MatchedPayload } from '@tacfinity/shared';
 import { useAuthStore } from '@/features/auth/store';
 import type { PlayerInfo } from '../types';
 
@@ -21,6 +21,13 @@ export function useGameSocket() {
   });
   const gameIdRef = useRef<string | null>(null);
   const mySymbolRef = useRef<'X' | 'O' | null>(null);
+  // Mirrors matchStatus so socket event closures always see the current value
+  const matchStatusRef = useRef<MatchStatus>('idle');
+
+  function updateMatchStatus(status: MatchStatus) {
+    matchStatusRef.current = status;
+    setMatchStatus(status);
+  }
 
   useEffect(() => {
     socket.on('queue:matched', (data: MatchedPayload) => {
@@ -38,7 +45,7 @@ export function useGameSocket() {
       setMoves([]);
       setResult(null);
       setActivePlayer('X');
-      setMatchStatus('playing');
+      updateMatchStatus('playing');
     });
 
     socket.on('game:update', (data) => {
@@ -55,34 +62,68 @@ export function useGameSocket() {
       setActivePlayer(data.nextPlayer);
     });
 
+    socket.on('game:sync', (data: GameSyncPayload) => {
+      gameIdRef.current = data.gameId;
+      mySymbolRef.current = data.yourSymbol;
+      setMySymbol(data.yourSymbol);
+      setBoard(data.board);
+      setMoves(data.moves);
+      setActivePlayer(data.nextPlayer);
+      setPlayers({
+        [data.yourSymbol]: { username: 'You', rating: data.yourRating },
+        [data.yourSymbol === 'X' ? 'O' : 'X']: {
+          username: data.opponentUsername,
+          rating: data.opponentRating,
+        },
+      } as { X: PlayerInfo; O: PlayerInfo });
+      setResult(null);
+      updateMatchStatus('playing');
+    });
+
     socket.on('game:end', (data) => {
       setResult(data);
       setActivePlayer(null);
-      setMatchStatus('ended');
+      updateMatchStatus('ended');
       if (mySymbolRef.current) {
         updateRating(data.ratingDelta[mySymbolRef.current]);
       }
     });
 
+    // On reconnect: if we were mid-game, request a full state sync from the server
+    socket.on('connect', () => {
+      if (matchStatusRef.current === 'playing' && gameIdRef.current) {
+        socket.emit('game:sync', { gameId: gameIdRef.current });
+      }
+    });
+
     socket.on('disconnect', (reason) => {
-      if (reason !== 'io client disconnect') setMatchStatus('idle');
+      // Intentional disconnect (cancelQueue / logout): reset fully
+      // Transient drop: keep 'playing' so the connect handler above can request sync
+      if (reason === 'io client disconnect') {
+        updateMatchStatus('idle');
+      }
     });
 
     socket.on('connect_error', () => {
-      setMatchStatus('idle');
+      // Only reset when not already in a game — server holds the session for 30s
+      if (matchStatusRef.current !== 'playing') {
+        updateMatchStatus('idle');
+      }
     });
 
     return () => {
+      socket.off('connect');
       socket.off('disconnect');
       socket.off('connect_error');
       socket.off('queue:matched');
       socket.off('game:update');
+      socket.off('game:sync');
       socket.off('game:end');
     };
   }, [updateRating]);
 
   function joinQueue() {
-    setMatchStatus('searching');
+    updateMatchStatus('searching');
     socket.auth = { token: useAuthStore.getState().accessToken };
     if (socket.connected) {
       socket.emit('queue:join');
@@ -94,11 +135,11 @@ export function useGameSocket() {
 
   function cancelQueue() {
     socket.disconnect();
-    setMatchStatus('idle');
+    updateMatchStatus('idle');
   }
 
   function makeMove(row: number, col: number) {
-    if (matchStatus !== 'playing' || !gameIdRef.current) return;
+    if (matchStatusRef.current !== 'playing' || !gameIdRef.current) return;
     socket.emit('game:move', { gameId: gameIdRef.current, row, col });
   }
 

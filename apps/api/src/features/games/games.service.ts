@@ -10,9 +10,12 @@ import {
   type Player,
   type ClientToServerEvents,
   type ServerToClientEvents,
+  type GameSyncPayload,
 } from '@tacfinity/shared';
 import { ValidationError } from '../../shared/errors/AppError.js';
 import { gamesRepository } from './games.repository.js';
+
+const RECONNECT_WINDOW_MS = 30_000;
 
 interface GameSession {
   gameId: string;
@@ -23,6 +26,8 @@ interface GameSession {
 }
 
 const sessions = new Map<string, GameSession>();
+// userId → pending forfeit timer (cleared on successful reconnect)
+const disconnectTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
 async function createGameSession(xUser: User, oUser: User): Promise<{ gameId: string }> {
   const { game } = await gamesRepository.createRoomAndGame(
@@ -101,14 +106,53 @@ async function handlePlayerDisconnect(
   io: Server<ClientToServerEvents, ServerToClientEvents>
 ): Promise<void> {
   for (const [, session] of sessions) {
-    const { players } = session;
-    if (players.X.id === socketUserId || players.O.id === socketUserId) {
-      const disconnectedSymbol: Player = players.X.id === socketUserId ? 'X' : 'O';
-      const winner: Player = disconnectedSymbol === 'X' ? 'O' : 'X';
-      await endGame(session, winner, io);
-      return;
-    }
+    const { players, gameId } = session;
+    if (players.X.id !== socketUserId && players.O.id !== socketUserId) continue;
+
+    const disconnectedSymbol: Player = players.X.id === socketUserId ? 'X' : 'O';
+    const winner: Player = disconnectedSymbol === 'X' ? 'O' : 'X';
+
+    const timer = setTimeout(async () => {
+      disconnectTimers.delete(socketUserId);
+      if (sessions.has(gameId)) {
+        await endGame(session, winner, io);
+      }
+    }, RECONNECT_WINDOW_MS);
+
+    disconnectTimers.set(socketUserId, timer);
+    return;
   }
+}
+
+function syncGame(gameId: string, socketUserId: string): GameSyncPayload | null {
+  const session = sessions.get(gameId);
+  if (!session) return null;
+
+  const { players, gs, moves } = session;
+  const isX = players.X.id === socketUserId;
+  const isO = players.O.id === socketUserId;
+  if (!isX && !isO) return null;
+
+  // Cancel the pending forfeit timer — this player made it back in time
+  const pending = disconnectTimers.get(socketUserId);
+  if (pending) {
+    clearTimeout(pending);
+    disconnectTimers.delete(socketUserId);
+  }
+
+  const yourSymbol: Player = isX ? 'X' : 'O';
+  const opponent = isX ? players.O : players.X;
+
+  return {
+    gameId,
+    board: gs.board,
+    moves: moves.map((m) => `${m.player}:${m.row},${m.col}`),
+    nextPlayer: gs.currentPlayer,
+    yourSymbol,
+    opponentUsername: opponent.username,
+    opponentRating: opponent.rating,
+    yourRating: players[yourSymbol].rating,
+  };
 }
 
 async function endGame(
@@ -163,4 +207,5 @@ export const gamesService = {
   createGameSession,
   applyMove,
   handlePlayerDisconnect,
+  syncGame,
 };

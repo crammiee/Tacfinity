@@ -18,11 +18,23 @@ export function registerGameHandlers(
     }
   });
 
+  socket.on('game:sync', ({ gameId }) => {
+    const payload = gamesService.syncGame(gameId, socket.data.user.id);
+    if (!payload) {
+      socket.emit('game:error', {
+        error: { code: 'NOT_FOUND', message: 'Game not found or you are not a player' },
+      });
+      return;
+    }
+    void socket.join(`game:${gameId}`);
+    socket.emit('game:sync', payload);
+  });
+
   socket.on('disconnect', async () => {
     try {
       await gamesService.handlePlayerDisconnect(socket.data.user.id, io);
     } catch {
-      // best-effort forfeit on disconnect
+      // best-effort — timer started; forfeit fires after reconnection window
     }
   });
 }
