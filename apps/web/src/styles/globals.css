@@ -31,7 +31,7 @@
 :root,
 .dark {
   /* ── Transparent glass tokens (rgba) ── */
-  /* Page background: fully transparent — marble image shows through */
+  /* Page background: fully transparent */
   --background: transparent;
   --foreground: hsl(210 40% 96%);
 
@@ -51,7 +51,7 @@
   --accent: rgba(253, 224, 71, 0.12);
   --accent-foreground: 54 98% 76%;
 
-  /* Borders: barely-visible white vein — echoes the marble */
+  /* Borders: barely-visible white vein */
   --border: rgba(255, 255, 255, 0.09);
   --input: rgba(255, 255, 255, 0.08);
 
@@ -66,8 +66,8 @@
   --radius: 0.5rem;
 
   /* Player colors */
-  --player-x: 201 70% 62%; /* #5bb8e0 — 6.5:1 contrast ✅ WCAG AA */
-  --player-o: 354 100% 65%; /* #ff4d5e — 5.2:1 contrast ✅ WCAG AA */
+  --player-x: 201 70% 62%; /* #5bb8e0 */
+  --player-o: 354 100% 65%; /* #ff4d5e */
   --player-win: 54 98% 76%; /* #fef886 */
 }
 
@@ -77,13 +77,12 @@
   }
 
   body {
-    /* Marble background — fixed so it doesn't scroll */
-    background-image: url('/bg.png');
+    /* Linear gradient background — fixed so it doesn't scroll */
+    background-image: url('/bg.svg');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
     background-repeat: no-repeat;
-    /* Dark overlay to deepen the marble and improve text contrast */
     background-color: rgba(4, 5, 10, 0.72);
     background-blend-mode: multiply;
     color: var(--foreground);
@@ -92,8 +91,7 @@
 }
 
 /* ── Glassmorphism utility ── 
-   Applied to sidebar, bottom nav, cards, drawers, overlays.
-   backdrop-filter is the key — blurs the marble behind each surface. */
+   Applied to sidebar, bottom nav, cards, drawers, overlays. */
 @layer components {
   .glass {
     background-color: var(--card);

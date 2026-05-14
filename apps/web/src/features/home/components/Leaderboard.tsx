@@ -12,7 +12,7 @@ export function Leaderboard() {
   const { user } = useAuth();
 
   return (
-    <section className="w-full max-w-lg">
+    <section className="w-md">
       <h2 className="text-xl font-bold mb-4">Top Players</h2>
       <div className="rounded-lg border divide-y">
         {STUB_ROWS.map((row) => {
@@ -25,8 +25,10 @@ export function Leaderboard() {
               }`}
             >
               <span className="text-muted-foreground w-6 shrink-0">#{row.rank}</span>
-              <span className="flex-1">{row.username}</span>
-              <span className="text-muted-foreground">♟ {row.rating.toLocaleString()} ELO</span>
+              <span className="mr-auto">{row.username}</span>
+              <span className="text-muted-foreground shrink-0 whitespace-nowrap">
+                ♟ {row.rating.toLocaleString()} ELO
+              </span>
             </div>
           );
         })}
