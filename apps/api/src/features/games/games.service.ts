@@ -13,6 +13,7 @@ import {
   type GameSyncPayload,
 } from '@tacfinity/shared';
 import { ValidationError } from '../../shared/errors/AppError.js';
+import { logger } from '../../shared/lib/logger.js';
 import { gamesRepository } from './games.repository.js';
 
 const RECONNECT_WINDOW_MS = 30_000;
@@ -112,10 +113,12 @@ async function handlePlayerDisconnect(
     const disconnectedSymbol: Player = players.X.id === socketUserId ? 'X' : 'O';
     const winner: Player = disconnectedSymbol === 'X' ? 'O' : 'X';
 
-    const timer = setTimeout(async () => {
+    const timer = setTimeout(() => {
       disconnectTimers.delete(socketUserId);
       if (sessions.has(gameId)) {
-        await endGame(session, winner, io);
+        void endGame(session, winner, io).catch((err: unknown) => {
+          logger.error({ err }, 'forfeit endGame failed');
+        });
       }
     }, RECONNECT_WINDOW_MS);
 

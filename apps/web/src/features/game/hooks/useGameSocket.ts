@@ -29,18 +29,26 @@ export function useGameSocket() {
     setMatchStatus(status);
   }
 
+  function buildPlayers(
+    yourSymbol: 'X' | 'O',
+    yourRating: number,
+    opponentUsername: string,
+    opponentRating: number
+  ): { X: PlayerInfo; O: PlayerInfo } {
+    return {
+      [yourSymbol]: { username: 'You', rating: yourRating },
+      [yourSymbol === 'X' ? 'O' : 'X']: { username: opponentUsername, rating: opponentRating },
+    } as { X: PlayerInfo; O: PlayerInfo };
+  }
+
   useEffect(() => {
     socket.on('queue:matched', (data: MatchedPayload) => {
       gameIdRef.current = data.gameId;
       mySymbolRef.current = data.yourSymbol;
       setMySymbol(data.yourSymbol);
-      setPlayers({
-        [data.yourSymbol]: { username: 'You', rating: data.yourRating },
-        [data.yourSymbol === 'X' ? 'O' : 'X']: {
-          username: data.opponentUsername,
-          rating: data.opponentRating,
-        },
-      } as { X: PlayerInfo; O: PlayerInfo });
+      setPlayers(
+        buildPlayers(data.yourSymbol, data.yourRating, data.opponentUsername, data.opponentRating)
+      );
       setBoard(Array(121).fill(null));
       setMoves([]);
       setResult(null);
@@ -69,13 +77,9 @@ export function useGameSocket() {
       setBoard(data.board);
       setMoves(data.moves);
       setActivePlayer(data.nextPlayer);
-      setPlayers({
-        [data.yourSymbol]: { username: 'You', rating: data.yourRating },
-        [data.yourSymbol === 'X' ? 'O' : 'X']: {
-          username: data.opponentUsername,
-          rating: data.opponentRating,
-        },
-      } as { X: PlayerInfo; O: PlayerInfo });
+      setPlayers(
+        buildPlayers(data.yourSymbol, data.yourRating, data.opponentUsername, data.opponentRating)
+      );
       setResult(null);
       updateMatchStatus('playing');
     });
