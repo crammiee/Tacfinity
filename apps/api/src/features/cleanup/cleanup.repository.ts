@@ -15,27 +15,28 @@ export const cleanupRepository = {
 
   async markAbandonedGames(olderThanMs: number): Promise<number> {
     const cutoff = new Date(Date.now() - olderThanMs);
-    const { count } = await db.game.updateMany({
-      where: {
-        status: 'IN_PROGRESS',
-        startedAt: { lt: cutoff },
-      },
-      data: {
-        status: 'ABANDONED',
-        endedAt: new Date(),
-      },
-    });
 
-    if (count > 0) {
-      await db.room.updateMany({
+    return db.$transaction(async (tx) => {
+      const { count } = await tx.game.updateMany({
+        where: {
+          status: 'IN_PROGRESS',
+          startedAt: { lt: cutoff },
+        },
+        data: {
+          status: 'ABANDONED',
+          endedAt: new Date(),
+        },
+      });
+
+      await tx.room.updateMany({
         where: {
           status: 'IN_GAME',
           games: { none: { status: 'IN_PROGRESS' } },
         },
         data: { status: 'FINISHED' },
       });
-    }
 
-    return count;
+      return count;
+    });
   },
 };

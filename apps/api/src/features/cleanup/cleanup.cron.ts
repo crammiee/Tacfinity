@@ -11,6 +11,6 @@ export function startCleanupCron(): void {
   };
 
   run();
-  setInterval(run, INTERVAL_MS);
+  setInterval(run, INTERVAL_MS).unref();
   logger.info({ intervalMs: INTERVAL_MS }, 'cleanup cron started');
 }
