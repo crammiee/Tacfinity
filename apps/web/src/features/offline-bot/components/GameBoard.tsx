@@ -1,58 +1,52 @@
 import type { Cell } from '@tacfinity/shared';
-import { GameCell } from './GameCell';
 
-interface GameBoardProps {
+interface Props {
   board: Cell[];
-  cols: number;
-  rows: number;
-  winningCells: number[];
-  isDisabled: boolean;
-  onCellClick: (idx: number) => void;
+  winCells: number[];
+  disabled: boolean;
+  onCellClick: (index: number) => void;
 }
 
-const MAX_BOARD_PX = 480;
-const GAP_PX = 4;
-
-function calcCellSize(cols: number, rows: number): number {
-  const maxDim = Math.max(cols, rows);
-  const available = MAX_BOARD_PX - GAP_PX * (maxDim - 1);
-  return Math.floor(available / maxDim);
-}
-
-export function GameBoard({
-  board,
-  cols,
-  rows,
-  winningCells,
-  isDisabled,
-  onCellClick,
-}: GameBoardProps) {
-  const winCellSet = new Set(winningCells);
-  const cellSize = calcCellSize(cols, rows);
-  const boardWidth = cellSize * cols + GAP_PX * (cols - 1);
-
+export function GameBoard({ board, winCells, disabled, onCellClick }: Props) {
   return (
     <div
-      role="grid"
-      aria-label="Game board"
+      className="border border-border rounded-lg overflow-hidden w-full"
       style={{
+        maxWidth: 'min(90vw, 580px)',
         display: 'grid',
-        gridTemplateColumns: `repeat(${cols}, ${cellSize}px)`,
-        gap: `${GAP_PX}px`,
-        width: `${boardWidth}px`,
+        gridTemplateColumns: 'repeat(11, 1fr)',
       }}
     >
-      {board.map((cell, idx) => (
-        <GameCell
-          key={idx}
-          value={cell}
-          index={idx}
-          cellSize={cellSize}
-          isWinCell={winCellSet.has(idx)}
-          isDisabled={isDisabled}
-          onClick={onCellClick}
-        />
-      ))}
+      {board.map((cell, index) => {
+        const isWinCell = winCells.includes(index);
+        const isEmpty = !cell;
+        const isClickable = isEmpty && !disabled;
+
+        return (
+          <button
+            key={index}
+            type="button"
+            aria-label={cell ? `Cell ${index}: ${cell}` : `Cell ${index}: empty`}
+            onClick={() => onCellClick(index)}
+            disabled={disabled || !isEmpty}
+            className={[
+              'aspect-square flex items-center justify-center',
+              'border-r border-b border-border/40 transition-colors',
+              isWinCell ? 'bg-player-win/15' : '',
+              isClickable ? 'hover:bg-accent cursor-pointer' : 'cursor-default',
+            ]
+              .filter(Boolean)
+              .join(' ')}
+          >
+            {cell === 'X' && (
+              <span className="text-(--color-player-x) text-sm font-bold leading-none">X</span>
+            )}
+            {cell === 'O' && (
+              <span className="text-(--color-player-o) text-sm font-bold leading-none">O</span>
+            )}
+          </button>
+        );
+      })}
     </div>
   );
 }

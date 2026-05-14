@@ -33,7 +33,7 @@ export function GameCell({
       style={{ width: `${cellSize}px`, height: `${cellSize}px`, fontSize }}
       className={cn(
         'flex items-center justify-center border rounded-md font-bold transition-colors select-none',
-        isWinCell ? 'bg-yellow-400/15 border-yellow-400/40' : 'bg-secondary border-border',
+        isWinCell ? 'bg-player-win/15 border-player-win/40' : 'bg-secondary border-border',
         value === 'X' && 'text-player-x',
         value === 'O' && 'text-player-o',
         value === null && 'text-transparent',

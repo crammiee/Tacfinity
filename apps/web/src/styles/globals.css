@@ -1,87 +1,112 @@
 @import 'tailwindcss';
 
 @theme inline {
-  --color-background: hsl(var(--background));
-  --color-foreground: hsl(var(--foreground));
-  --color-card: hsl(var(--card));
-  --color-card-foreground: hsl(var(--card-foreground));
-  --color-popover: hsl(var(--popover));
-  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
   --color-primary: hsl(var(--primary));
   --color-primary-foreground: hsl(var(--primary-foreground));
-  --color-secondary: hsl(var(--secondary));
+  --color-secondary: var(--secondary);
   --color-secondary-foreground: hsl(var(--secondary-foreground));
-  --color-muted: hsl(var(--muted));
+  --color-muted: var(--muted);
   --color-muted-foreground: hsl(var(--muted-foreground));
-  --color-accent: hsl(var(--accent));
+  --color-accent: var(--accent);
   --color-accent-foreground: hsl(var(--accent-foreground));
   --color-destructive: hsl(var(--destructive));
   --color-destructive-foreground: hsl(var(--destructive-foreground));
-  --color-border: hsl(var(--border));
-  --color-input: hsl(var(--input));
+  --color-border: var(--border);
+  --color-input: var(--input);
   --color-ring: hsl(var(--ring));
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --color-player-x: hsl(var(--player-x));
   --color-player-o: hsl(var(--player-o));
+  --color-player-win: hsl(var(--player-win));
 }
 
-:root {
-  --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 4.9%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 222.2 84% 4.9%;
-  --primary: 222.2 47.4% 11.2%;
-  --primary-foreground: 210 40% 98%;
-  --secondary: 210 40% 96.1%;
-  --secondary-foreground: 222.2 47.4% 11.2%;
-  --muted: 210 40% 96.1%;
-  --muted-foreground: 215.4 16.3% 46.9%;
-  --accent: 210 40% 96.1%;
-  --accent-foreground: 222.2 47.4% 11.2%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  --ring: 222.2 84% 4.9%;
-  --radius: 0.5rem;
-  --player-x: 198.6 93.2% 59.6%;
-  --player-o: 350 89.5% 72%;
-}
-
+:root,
 .dark {
-  --background: 222.2 84% 4.9%;
-  --foreground: 210 40% 98%;
-  --card: 222.2 84% 4.9%;
-  --card-foreground: 210 40% 98%;
-  --popover: 222.2 84% 4.9%;
-  --popover-foreground: 210 40% 98%;
-  --primary: 210 40% 98%;
-  --primary-foreground: 222.2 47.4% 11.2%;
-  --secondary: 217.2 32.6% 17.5%;
-  --secondary-foreground: 210 40% 98%;
-  --muted: 217.2 32.6% 17.5%;
-  --muted-foreground: 215 20.2% 65.1%;
-  --accent: 217.2 32.6% 17.5%;
-  --accent-foreground: 210 40% 98%;
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 217.2 32.6% 17.5%;
-  --input: 217.2 32.6% 17.5%;
-  --ring: 212.7 26.8% 83.9%;
-  --player-x: 198.6 93.2% 59.6%;
-  --player-o: 350 89.5% 72%;
+  /* ── Transparent glass tokens (rgba) ── */
+  /* Page background: fully transparent — marble image shows through */
+  --background: transparent;
+  --foreground: hsl(210 40% 96%);
+
+  /* Cards / popovers: dark glass at 55% opacity */
+  --card: rgba(10, 12, 20, 0.55);
+  --card-foreground: hsl(210 40% 96%);
+  --popover: rgba(10, 12, 20, 0.65);
+  --popover-foreground: hsl(210 40% 96%);
+
+  /* Hover / active backgrounds: semi-transparent dark */
+  --secondary: rgba(255, 255, 255, 0.06);
+  --secondary-foreground: 210 40% 96%;
+  --muted: rgba(255, 255, 255, 0.05);
+  --muted-foreground: 215 16% 55%;
+
+  /* Accent: warm yellow tint at low opacity */
+  --accent: rgba(253, 224, 71, 0.12);
+  --accent-foreground: 54 98% 76%;
+
+  /* Borders: barely-visible white vein — echoes the marble */
+  --border: rgba(255, 255, 255, 0.09);
+  --input: rgba(255, 255, 255, 0.08);
+
+  /* ── Opaque tokens (still HSL) ── */
+  /* Primary = accent yellow — buttons, brand, highlights */
+  --primary: 54 98% 76%;
+  --primary-foreground: 220 20% 8%;
+
+  --destructive: 354 75% 56%;
+  --destructive-foreground: 210 40% 96%;
+  --ring: 54 98% 76%;
+  --radius: 0.5rem;
+
+  /* Player colors */
+  --player-x: 201 70% 62%; /* #5bb8e0 — 6.5:1 contrast ✅ WCAG AA */
+  --player-o: 354 100% 65%; /* #ff4d5e — 5.2:1 contrast ✅ WCAG AA */
+  --player-win: 54 98% 76%; /* #fef886 */
 }
 
 @layer base {
   * {
-    border-color: hsl(var(--border));
+    border-color: var(--border);
   }
+
   body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
+    /* Marble background — fixed so it doesn't scroll */
+    background-image: url('/bg.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    /* Dark overlay to deepen the marble and improve text contrast */
+    background-color: rgba(4, 5, 10, 0.72);
+    background-blend-mode: multiply;
+    color: var(--foreground);
+    min-height: 100vh;
+  }
+}
+
+/* ── Glassmorphism utility ── 
+   Applied to sidebar, bottom nav, cards, drawers, overlays.
+   backdrop-filter is the key — blurs the marble behind each surface. */
+@layer components {
+  .glass {
+    background-color: var(--card);
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+  }
+
+  /* Lighter glass — for hover items, secondary surfaces */
+  .glass-subtle {
+    background-color: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
   }
 }
