@@ -23,7 +23,7 @@ export const gamesRepository = {
           hostId: xUserId,
           boardSize: 11,
           winCondition: 5,
-          type: RoomType.CASUAL,
+          type: RoomType.RANKED,
           status: RoomStatus.IN_GAME,
         },
       });

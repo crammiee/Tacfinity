@@ -5,6 +5,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { env } from './config/env.js';
 import { authRouter } from './features/auth/index.js';
+import { usersRouter } from './features/users/index.js';
 import { errorMiddleware } from './shared/middleware/error.js';
 import { logger } from './shared/lib/logger.js';
 import { initSockets } from './shared/sockets/index.js';
@@ -26,6 +27,7 @@ app.get('/health', (_req, res) => {
 });
 
 app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/users', usersRouter);
 
 app.use(errorMiddleware);
 
