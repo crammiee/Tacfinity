@@ -8,6 +8,7 @@ import { authRouter } from './features/auth/index.js';
 import { errorMiddleware } from './shared/middleware/error.js';
 import { logger } from './shared/lib/logger.js';
 import { initSockets } from './shared/sockets/index.js';
+import { startCleanupCron } from './features/cleanup/index.js';
 
 const app = express();
 
@@ -35,4 +36,5 @@ initSockets(httpServer);
 
 httpServer.listen(env.PORT, () => {
   logger.info({ port: env.PORT }, 'server listening');
+  startCleanupCron();
 });
