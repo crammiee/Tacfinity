@@ -7,6 +7,21 @@ import type { PlayerInfo } from '../types';
 
 type MatchStatus = 'idle' | 'searching' | 'playing' | 'ended';
 
+function buildPlayers(data: {
+  yourSymbol: 'X' | 'O';
+  yourRating: number;
+  opponentUsername: string;
+  opponentRating: number;
+}): { X: PlayerInfo; O: PlayerInfo } {
+  return {
+    [data.yourSymbol]: { username: 'You', rating: data.yourRating },
+    [data.yourSymbol === 'X' ? 'O' : 'X']: {
+      username: data.opponentUsername,
+      rating: data.opponentRating,
+    },
+  } as { X: PlayerInfo; O: PlayerInfo };
+}
+
 export function useGameSocket() {
   const updateRating = useAuthStore((s) => s.updateRating);
   const [matchStatus, setMatchStatus] = useState<MatchStatus>('idle');
@@ -29,26 +44,12 @@ export function useGameSocket() {
     setMatchStatus(status);
   }
 
-  function buildPlayers(
-    yourSymbol: 'X' | 'O',
-    yourRating: number,
-    opponentUsername: string,
-    opponentRating: number
-  ): { X: PlayerInfo; O: PlayerInfo } {
-    return {
-      [yourSymbol]: { username: 'You', rating: yourRating },
-      [yourSymbol === 'X' ? 'O' : 'X']: { username: opponentUsername, rating: opponentRating },
-    } as { X: PlayerInfo; O: PlayerInfo };
-  }
-
   useEffect(() => {
     socket.on('queue:matched', (data: MatchedPayload) => {
       gameIdRef.current = data.gameId;
       mySymbolRef.current = data.yourSymbol;
       setMySymbol(data.yourSymbol);
-      setPlayers(
-        buildPlayers(data.yourSymbol, data.yourRating, data.opponentUsername, data.opponentRating)
-      );
+      setPlayers(buildPlayers(data));
       setBoard(Array(121).fill(null));
       setMoves([]);
       setResult(null);
@@ -77,9 +78,7 @@ export function useGameSocket() {
       setBoard(data.board);
       setMoves(data.moves);
       setActivePlayer(data.nextPlayer);
-      setPlayers(
-        buildPlayers(data.yourSymbol, data.yourRating, data.opponentUsername, data.opponentRating)
-      );
+      setPlayers(buildPlayers(data));
       setResult(null);
       updateMatchStatus('playing');
     });

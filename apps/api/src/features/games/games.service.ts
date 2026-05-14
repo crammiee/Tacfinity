@@ -27,8 +27,16 @@ interface GameSession {
 }
 
 const sessions = new Map<string, GameSession>();
-// userId → pending forfeit timer (cleared on successful reconnect)
+// userId → pending forfeit timer (cleared on successful reconnect or game end)
 const disconnectTimers = new Map<string, ReturnType<typeof setTimeout>>();
+
+function clearDisconnectTimer(userId: string): void {
+  const timer = disconnectTimers.get(userId);
+  if (timer) {
+    clearTimeout(timer);
+    disconnectTimers.delete(userId);
+  }
+}
 
 async function createGameSession(xUser: User, oUser: User): Promise<{ gameId: string }> {
   const { game } = await gamesRepository.createRoomAndGame(
@@ -137,11 +145,7 @@ function syncGame(gameId: string, socketUserId: string): GameSyncPayload | null 
   if (!isX && !isO) return null;
 
   // Cancel the pending forfeit timer — this player made it back in time
-  const pending = disconnectTimers.get(socketUserId);
-  if (pending) {
-    clearTimeout(pending);
-    disconnectTimers.delete(socketUserId);
-  }
+  clearDisconnectTimer(socketUserId);
 
   const yourSymbol: Player = isX ? 'X' : 'O';
   const opponent = isX ? players.O : players.X;
@@ -203,6 +207,8 @@ async function endGame(
     },
   });
 
+  clearDisconnectTimer(players.X.id);
+  clearDisconnectTimer(players.O.id);
   sessions.delete(gameId);
 }
 

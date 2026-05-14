@@ -26,7 +26,8 @@ export function registerGameHandlers(
       });
       return;
     }
-    void socket.join(`game:${gameId}`); // intentional: local adapter join is synchronous; emit below targets this socket directly, not the room
+    // intentional: emit below targets this socket directly, not the room — join can settle after
+    void socket.join(`game:${gameId}`);
     socket.emit('game:sync', payload);
   });
 
