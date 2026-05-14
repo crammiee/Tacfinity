@@ -8,6 +8,7 @@ import { authRouter } from './features/auth/index.js';
 import { errorMiddleware } from './shared/middleware/error.js';
 import { logger } from './shared/lib/logger.js';
 import { initSockets } from './shared/sockets/index.js';
+import { leaderboardRouter } from './features/leaderboard/leaderboard.js';
 
 const app = express();
 
@@ -26,7 +27,7 @@ app.get('/health', (_req, res) => {
 });
 
 app.use('/api/v1/auth', authRouter);
-
+app.use('/api/v1/leaderboard', leaderboardRouter);
 app.use(errorMiddleware);
 
 // Shared HTTP server for Express + Socket.io
