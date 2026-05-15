@@ -1,9 +1,26 @@
+import type { Cell } from '@tacfinity/shared';
 import { useGameSocket } from './hooks/useGameSocket';
 import { GameBoard } from './components/GameBoard';
 import { MatchmakingTimer } from './components/MatchmakingTimer';
 import { RightPanel } from './components/RightPanel';
 import { GameResultOverlay } from './components/GameResultOverlay';
 import { Button } from '@/shared/ui/button';
+
+const BOARD_COLS = 15;
+const EMPTY_BOARD: Cell[] = Array<Cell>(BOARD_COLS * BOARD_COLS).fill(null);
+
+function buildStatusText(
+  winner: 'X' | 'O' | 'draw' | undefined,
+  mySymbol: 'X' | 'O' | null,
+  activePlayer: 'X' | 'O' | null,
+  isEnded: boolean
+): string {
+  if (isEnded) {
+    if (winner === 'draw') return "It's a draw!";
+    return winner === mySymbol ? 'You won!' : 'You lost.';
+  }
+  return activePlayer === mySymbol ? 'Your turn' : "Opponent's turn";
+}
 
 export function OnlineGamePage() {
   const {
@@ -20,74 +37,61 @@ export function OnlineGamePage() {
     makeMove,
   } = useGameSocket();
 
+  const isPlaying = matchStatus === 'playing' || matchStatus === 'ended';
+
   function handleCellClick(idx: number) {
-    // Only send move when it is your turn
     if (activePlayer !== mySymbol) return;
-    const row = Math.floor(idx / 11);
-    const col = idx % 11;
-    makeMove(row, col);
+    makeMove(Math.floor(idx / BOARD_COLS), idx % BOARD_COLS);
   }
 
   return (
     <div className="flex flex-col md:flex-row flex-1 h-full relative">
-      {/* Center — board area */}
       <div className="flex flex-1 flex-col items-center justify-center gap-4 p-6">
-        {matchStatus === 'idle' && (
-          <div className="flex flex-col items-center gap-4">
-            <p className="text-muted-foreground text-sm">
-              {queueTimedOut
-                ? 'No one seems to be in queue right now — try again later.'
-                : 'Find an opponent and start a ranked game.'}
-            </p>
-            <Button size="lg" onClick={joinQueue}>
-              {queueTimedOut ? 'Try Again' : 'Find Match'}
-            </Button>
-          </div>
+        {isPlaying && (
+          <p className="text-sm text-muted-foreground">
+            {buildStatusText(result?.winner, mySymbol, activePlayer, matchStatus === 'ended')}
+          </p>
         )}
-
-        {matchStatus === 'searching' && (
-          <div className="flex flex-col items-center gap-4">
-            <MatchmakingTimer searching />
-            <Button variant="outline" onClick={cancelQueue}>
-              Cancel
-            </Button>
-          </div>
-        )}
-
-        {(matchStatus === 'playing' || matchStatus === 'ended') && (
-          <>
-            <p className="text-sm text-muted-foreground">
-              {matchStatus === 'playing'
-                ? activePlayer === mySymbol
-                  ? 'Your turn'
-                  : "Opponent's turn"
-                : result?.winner === mySymbol
-                  ? 'You won!'
-                  : result?.winner === 'draw'
-                    ? "It's a draw!"
-                    : 'You lost.'}
-            </p>
-            <GameBoard
-              board={board}
-              winCells={[]}
-              disabled={matchStatus === 'ended' || activePlayer !== mySymbol}
-              onCellClick={handleCellClick}
-            />
-          </>
-        )}
+        <GameBoard
+          board={isPlaying ? board : EMPTY_BOARD}
+          cols={BOARD_COLS}
+          winCells={[]}
+          disabled={!isPlaying || matchStatus === 'ended' || activePlayer !== mySymbol}
+          onCellClick={handleCellClick}
+        />
       </div>
 
-      {/* Right panel */}
-      {(matchStatus === 'playing' || matchStatus === 'ended') && (
+      {isPlaying ? (
         <RightPanel
           moves={moves}
           mySymbol={mySymbol}
           players={players}
           activePlayer={activePlayer}
         />
+      ) : (
+        <aside className="w-full md:w-64 md:shrink-0 border-t md:border-t-0 md:border-l flex flex-col justify-center gap-6 p-6">
+          {matchStatus === 'searching' ? (
+            <>
+              <MatchmakingTimer searching />
+              <Button size="lg" variant="outline" className="w-full" onClick={cancelQueue}>
+                Cancel
+              </Button>
+            </>
+          ) : (
+            <>
+              {queueTimedOut && (
+                <p className="text-sm text-muted-foreground">
+                  No one seems to be in queue right now — try again later.
+                </p>
+              )}
+              <Button size="lg" className="w-full" onClick={joinQueue}>
+                {queueTimedOut ? 'Try Again' : 'Find Match'}
+              </Button>
+            </>
+          )}
+        </aside>
       )}
 
-      {/* Result overlay — rendered on top of the board */}
       {matchStatus === 'ended' && result && mySymbol && (
         <GameResultOverlay
           winner={result.winner}

@@ -48,7 +48,7 @@ async function createGameSession(xUser: User, oUser: User): Promise<{ gameId: st
   );
 
   const gs = new GameState();
-  gs.configure({ cols: 11, rows: 11, winLen: 5, mode: '2p', difficulty: 'hard', humanSide: 'X' });
+  gs.configure({ cols: 15, rows: 15, winLen: 5, mode: '2p', difficulty: 'hard', humanSide: 'X' });
   gs.resetBoard();
 
   sessions.set(game.id, {

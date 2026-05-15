@@ -30,7 +30,7 @@ function buildPlayers(data: {
 export function useGameSocket() {
   const updateRating = useAuthStore((s) => s.updateRating);
   const [matchStatus, setMatchStatus] = useState<MatchStatus>('idle');
-  const [board, setBoard] = useState<Cell[]>(Array(121).fill(null));
+  const [board, setBoard] = useState<Cell[]>(Array(225).fill(null));
   const [mySymbol, setMySymbol] = useState<'X' | 'O' | null>(null);
   const [activePlayer, setActivePlayer] = useState<'X' | 'O' | null>(null);
   const [moves, setMoves] = useState<string[]>([]);
@@ -62,7 +62,7 @@ export function useGameSocket() {
       mySymbolRef.current = data.yourSymbol;
       setMySymbol(data.yourSymbol);
       setPlayers(buildPlayers(data));
-      setBoard(Array(121).fill(null));
+      setBoard(Array(225).fill(null));
       setMoves([]);
       setResult(null);
       setActivePlayer('X');
@@ -72,7 +72,7 @@ export function useGameSocket() {
     socket.on('game:update', (data) => {
       const [, coords] = data.tgnToken.split(':');
       const [rowStr, colStr] = coords.split(',');
-      const idx = parseInt(rowStr) * 11 + parseInt(colStr);
+      const idx = parseInt(rowStr) * 15 + parseInt(colStr);
       const player = data.tgnToken[0] as 'X' | 'O';
       setBoard((prev) => {
         const next = [...prev];
