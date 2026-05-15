@@ -1,24 +1,18 @@
 import { useQuery } from '@tanstack/react-query';
+import type { LeaderboardEntry } from '@tacfinity/shared';
+import { apiClient } from '@/shared/lib/axios';
 import { useAuth } from '@/features/auth/useAuth';
 
-interface LeaderboardEntry {
-  rank: number;
-  id: string;
-  username: string;
-  rating: number;
-}
-
-async function fetchLeaderboard(): Promise<LeaderboardEntry[]> {
-  const res = await fetch('/api/v1/leaderboard?n=10');
-  if (!res.ok) throw new Error('Failed to fetch leaderboard');
-  return res.json();
-}
-
-export function Leaderboard() {
+export function Leaderboard(): React.ReactElement {
   const { user } = useAuth();
   const { data, isLoading, isError } = useQuery({
     queryKey: ['leaderboard'],
-    queryFn: fetchLeaderboard,
+    queryFn: async () => {
+      const res = (await apiClient.get('/api/v1/leaderboard?limit=10')) as {
+        items: LeaderboardEntry[];
+      };
+      return res.items;
+    },
     staleTime: 60_000,
   });
 
