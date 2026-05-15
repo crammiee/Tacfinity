@@ -1,7 +1,8 @@
 import { useParams } from 'react-router-dom';
+import type { GameHistoryEntry } from '@tacfinity/shared';
 import { usePublicProfile } from './api';
 
-export function ProfilePage() {
+export function ProfilePage(): React.ReactElement {
   const { id } = useParams<{ id: string }>();
   const { data: profile, isPending, isError } = usePublicProfile(id ?? '');
 
@@ -42,10 +43,18 @@ export function ProfilePage() {
             <table className="w-full text-sm">
               <thead className="bg-muted/50">
                 <tr>
-                  <th className="px-4 py-2 text-left font-medium">Opponent</th>
-                  <th className="px-4 py-2 text-left font-medium">Result</th>
-                  <th className="px-4 py-2 text-right font-medium">Rating</th>
-                  <th className="px-4 py-2 text-right font-medium">Date</th>
+                  <th scope="col" className="px-4 py-2 text-left font-medium">
+                    Opponent
+                  </th>
+                  <th scope="col" className="px-4 py-2 text-left font-medium">
+                    Result
+                  </th>
+                  <th scope="col" className="px-4 py-2 text-right font-medium">
+                    Rating
+                  </th>
+                  <th scope="col" className="px-4 py-2 text-right font-medium">
+                    Date
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -74,8 +83,8 @@ export function ProfilePage() {
   );
 }
 
-function ResultBadge({ result }: { result: 'win' | 'loss' | 'draw' }) {
-  const styles = {
+function ResultBadge({ result }: { result: GameHistoryEntry['result'] }): React.ReactElement {
+  const styles: Record<GameHistoryEntry['result'], string> = {
     win: 'text-green-600 font-semibold',
     loss: 'text-destructive font-semibold',
     draw: 'text-muted-foreground',
@@ -83,7 +92,7 @@ function ResultBadge({ result }: { result: 'win' | 'loss' | 'draw' }) {
   return <span className={styles[result]}>{result.charAt(0).toUpperCase() + result.slice(1)}</span>;
 }
 
-function RatingDelta({ before, after }: { before: number; after: number }) {
+function RatingDelta({ before, after }: { before: number; after: number }): React.ReactElement {
   const delta = after - before;
   const sign = delta >= 0 ? '+' : '';
   const color =
