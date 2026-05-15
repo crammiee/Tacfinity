@@ -148,6 +148,9 @@ export function useGameSocket() {
     });
 
     return () => {
+      if (matchStatusRef.current === 'searching') {
+        socket.emit('queue:cancel');
+      }
       socket.off('connect');
       socket.off('disconnect');
       socket.off('connect_error');

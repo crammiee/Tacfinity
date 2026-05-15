@@ -11,6 +11,10 @@ export function registerMatchmakingHandlers(socket: AuthedSocket): void {
     }
   });
 
+  socket.on('queue:cancel', () => {
+    matchmakingService.cancelQueue(socket);
+  });
+
   socket.on('disconnect', () => {
     matchmakingService.cancelQueue(socket);
   });

@@ -2,6 +2,7 @@ import type { Cell } from './types/index.js';
 
 export interface ClientToServerEvents {
   'queue:join': () => void;
+  'queue:cancel': () => void;
   'game:move': (payload: { gameId: string; row: number; col: number }) => void;
   'game:sync': (payload: { gameId: string }) => void;
   'game:resign': (payload: { gameId: string }) => void;
