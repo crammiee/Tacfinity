@@ -31,5 +31,5 @@ export function useBootstrapAuth() {
         localStorage.removeItem('cached_user');
       })
       .finally(() => setBootstrapping(false));
-  }, []);
+  }, [setUser, setBootstrapping]);
 }
