@@ -13,6 +13,7 @@ import {
 } from '@tacfinity/shared';
 import { ValidationError } from '../../shared/errors/AppError.js';
 import { gamesRepository } from './games.repository.js';
+import { leaderboardService } from '../leaderboard/leaderboard.service.js';
 
 interface GameSession {
   gameId: string;
@@ -146,6 +147,8 @@ async function endGame(
     oId: players.O.id,
     oRatingAfter: oAfter,
   });
+
+  leaderboardService.invalidate();
 
   io.to(`game:${gameId}`).emit('game:end', {
     gameId,
