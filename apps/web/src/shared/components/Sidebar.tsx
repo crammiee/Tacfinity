@@ -19,23 +19,21 @@ export function Sidebar() {
       {/* Main nav */}
       <nav className="flex flex-col gap-1 flex-1">
         <NavItem to="/play/online">Play</NavItem>
-        <NavItem to="#">Watch</NavItem>
-        <NavItem to="#">Community</NavItem>
-        <NavItem to="#">Others</NavItem>
       </nav>
 
       {/* Bottom profile / auth area */}
       <div className="flex flex-col gap-1 pt-4 border-t border-border">
         {isLoggedIn && user ? (
           <>
-            {/* Avatar + username row */}
-            <div className="flex items-center gap-2 px-3 py-2">
+            <Link
+              to={`/profile/${user.id}`}
+              className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-secondary transition-colors"
+            >
               <div className="w-7 h-7 rounded-full bg-accent flex items-center justify-center text-xs font-bold uppercase text-accent-foreground shrink-0">
                 {user.username[0]}
               </div>
               <span className="text-sm font-medium truncate">{user.username}</span>
-            </div>
-            {/* Logout always visible */}
+            </Link>
             <button
               onClick={() => logout.mutate()}
               disabled={logout.isPending}

@@ -1,6 +1,9 @@
+import type { Cell } from './types/index.js';
+
 export interface ClientToServerEvents {
   'queue:join': () => void;
   'game:move': (payload: { gameId: string; row: number; col: number }) => void;
+  'game:sync': (payload: { gameId: string }) => void;
 }
 
 export interface ServerToClientEvents {
@@ -8,6 +11,7 @@ export interface ServerToClientEvents {
   'game:update': (payload: GameUpdatePayload) => void;
   'game:end': (payload: GameEndPayload) => void;
   'game:error': (payload: GameErrorPayload) => void;
+  'game:sync': (payload: GameSyncPayload) => void;
 }
 
 export interface MatchedPayload {
@@ -32,4 +36,15 @@ export interface GameEndPayload {
 
 export interface GameErrorPayload {
   error: { code: string; message: string };
+}
+
+export interface GameSyncPayload {
+  gameId: string;
+  board: Cell[];
+  moves: string[]; // TGN tokens e.g. ["X:0,0", "O:1,1"]
+  nextPlayer: 'X' | 'O';
+  yourSymbol: 'X' | 'O';
+  opponentUsername: string;
+  opponentRating: number;
+  yourRating: number;
 }

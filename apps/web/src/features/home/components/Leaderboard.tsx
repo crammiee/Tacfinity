@@ -1,21 +1,29 @@
+import { useQuery } from '@tanstack/react-query';
+import type { LeaderboardEntry } from '@tacfinity/shared';
+import { apiClient } from '@/shared/lib/axios';
 import { useAuth } from '@/features/auth/useAuth';
 
-const STUB_ROWS = [
-  { rank: 1, username: 'playerA', rating: 2341 },
-  { rank: 2, username: 'playerB', rating: 2180 },
-  { rank: 3, username: 'playerC', rating: 2054 },
-  { rank: 4, username: 'playerD', rating: 1987 },
-  { rank: 5, username: 'playerE', rating: 1902 },
-];
-
-export function Leaderboard() {
+export function Leaderboard(): React.ReactElement {
   const { user } = useAuth();
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['leaderboard'],
+    queryFn: async () => {
+      const res = (await apiClient.get('/api/v1/leaderboard?limit=10')) as {
+        items: LeaderboardEntry[];
+      };
+      return res.items;
+    },
+    staleTime: 60_000,
+  });
+
+  if (isLoading) return <p className="text-muted-foreground text-sm">Loading...</p>;
+  if (isError) return <p className="text-destructive text-sm">Failed to load leaderboard.</p>;
 
   return (
     <section className="w-md">
       <h2 className="text-xl font-bold mb-4">Top Players</h2>
       <div className="rounded-lg border divide-y">
-        {STUB_ROWS.map((row) => {
+        {data?.map((row) => {
           const isMe = user?.username === row.username;
           return (
             <div

@@ -53,6 +53,14 @@ function isUniqueViolation(err: unknown): boolean {
   );
 }
 
+function getConflictField(err: unknown): string {
+  if (typeof err !== 'object' || err === null) return '';
+  const target = (err as { meta?: { target?: unknown } }).meta?.target;
+  if (Array.isArray(target)) return target.join(' ');
+  if (typeof target === 'string') return target;
+  return '';
+}
+
 function extractUserId(decoded: unknown): string {
   if (typeof decoded !== 'object' || decoded === null) {
     throw new UnauthorizedError('Invalid token');
@@ -76,6 +84,9 @@ export const authService = {
       return toPublicUser(user);
     } catch (err) {
       if (isUniqueViolation(err)) {
+        const field = getConflictField(err);
+        if (field.includes('email')) throw new ConflictError('Email already taken');
+        if (field.includes('username')) throw new ConflictError('Username already taken');
         throw new ConflictError('Email or username already taken');
       }
       throw err;
