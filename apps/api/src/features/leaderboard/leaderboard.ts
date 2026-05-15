@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '../leaderboard/prisma.js';
+import { db } from '../../shared/db/index.js';
 
 interface LeaderboardUser {
   id: string;
@@ -12,7 +12,7 @@ interface LeaderboardEntry extends LeaderboardUser {
 }
 
 async function getTopUsers(n: number): Promise<LeaderboardEntry[]> {
-  const users = await prisma.user.findMany({
+  const users = await db.user.findMany({
     orderBy: { rating: 'desc' },
     take: n,
     select: { id: true, username: true, rating: true },
