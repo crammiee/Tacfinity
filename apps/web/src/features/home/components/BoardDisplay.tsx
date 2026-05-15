@@ -2,6 +2,7 @@ export function BoardDisplay() {
   return (
     <div className="flex items-center justify-center">
       <svg
+        aria-hidden="true"
         className="w-md opacity-90 shrink-0"
         viewBox="0 0 567 345"
         fill="none"
