@@ -1,15 +1,17 @@
 import type { Cell } from '@tacfinity/shared';
 
-interface Props {
+interface GameBoardProps {
   board: Cell[];
   winCells: number[];
-  disabled: boolean;
+  isDisabled: boolean;
   onCellClick: (index: number) => void;
 }
 
-export function GameBoard({ board, winCells, disabled, onCellClick }: Props) {
+export function GameBoard({ board, winCells, isDisabled, onCellClick }: GameBoardProps) {
   return (
     <div
+      role="grid"
+      aria-label="Game board"
       className="border border-border rounded-lg overflow-hidden w-full"
       style={{
         maxWidth: 'min(90vw, 580px)',
@@ -20,7 +22,7 @@ export function GameBoard({ board, winCells, disabled, onCellClick }: Props) {
       {board.map((cell, index) => {
         const isWinCell = winCells.includes(index);
         const isEmpty = !cell;
-        const isClickable = isEmpty && !disabled;
+        const isClickable = isEmpty && !isDisabled;
 
         return (
           <button
@@ -28,7 +30,7 @@ export function GameBoard({ board, winCells, disabled, onCellClick }: Props) {
             type="button"
             aria-label={cell ? `Cell ${index}: ${cell}` : `Cell ${index}: empty`}
             onClick={() => onCellClick(index)}
-            disabled={disabled || !isEmpty}
+            disabled={isDisabled || !isEmpty}
             className={[
               'aspect-square flex items-center justify-center',
               'border-r border-b border-border/40 transition-colors',
