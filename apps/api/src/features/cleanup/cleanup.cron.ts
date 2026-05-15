@@ -1,7 +1,7 @@
 import { logger } from '../../shared/lib/logger.js';
 import { cleanupService } from './cleanup.service.js';
 
-const INTERVAL_MS = 15 * 60 * 1000; // every 15 minutes
+const INTERVAL_MS = 60 * 60 * 1000; // every hour
 
 export function startCleanupCron(): void {
   const run = (): void => {
