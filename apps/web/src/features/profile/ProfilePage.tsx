@@ -1,10 +1,11 @@
 import { useParams } from 'react-router-dom';
 import type { GameHistoryEntry } from '@tacfinity/shared';
+import { ApiError } from '@/shared/lib/axios';
 import { usePublicProfile } from './api';
 
 export function ProfilePage(): React.ReactElement {
   const { id } = useParams<{ id: string }>();
-  const { data: profile, isPending, isError } = usePublicProfile(id ?? '');
+  const { data: profile, isPending, error } = usePublicProfile(id ?? '');
 
   if (isPending) {
     return (
@@ -14,10 +15,18 @@ export function ProfilePage(): React.ReactElement {
     );
   }
 
-  if (isError || !profile) {
+  if (error instanceof ApiError && error.status === 404) {
     return (
       <div className="flex flex-1 items-center justify-center text-muted-foreground text-sm">
         Player not found.
+      </div>
+    );
+  }
+
+  if (error || !profile) {
+    return (
+      <div className="flex flex-1 items-center justify-center text-muted-foreground text-sm">
+        Something went wrong. Please try again.
       </div>
     );
   }
