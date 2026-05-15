@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { Difficulty, Player } from '@tacfinity/shared';
 import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
@@ -155,6 +156,7 @@ function SidePicker({ humanSide, isDisabled, onChange }: SidePickerProps): React
 
 export function BotGamePage(): React.ReactElement {
   const { user } = useAuth();
+  const [confirmResign, setConfirmResign] = useState(false);
   const game = useBotGame();
   const bot = BOT_META[game.difficulty];
   const isSetupDisabled = game.phase === 'playing';
@@ -220,9 +222,43 @@ export function BotGamePage(): React.ReactElement {
                 {bot.name} declined your draw offer
               </p>
             )}
-            <Button size="sm" variant="destructive" className="w-full" onClick={game.resign}>
-              Resign
-            </Button>
+            {confirmResign ? (
+              <>
+                <p className="text-xs text-muted-foreground text-center">
+                  Are you sure you want to resign?
+                </p>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    className="flex-1"
+                    onClick={() => {
+                      setConfirmResign(false);
+                      game.resign();
+                    }}
+                  >
+                    Yes
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => setConfirmResign(false)}
+                  >
+                    No
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <Button
+                size="sm"
+                variant="destructive"
+                className="w-full"
+                onClick={() => setConfirmResign(true)}
+              >
+                Resign
+              </Button>
+            )}
           </div>
         )}
         <Button size="lg" className="w-full" onClick={game.startGame}>

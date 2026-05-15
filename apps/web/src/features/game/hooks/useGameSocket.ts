@@ -38,6 +38,7 @@ export function useGameSocket() {
   const [queueTimedOut, setQueueTimedOut] = useState(false);
   const [drawOffered, setDrawOffered] = useState(false);
   const [drawOfferPending, setDrawOfferPending] = useState(false);
+  const [drawDeclined, setDrawDeclined] = useState(false);
   const [players, setPlayers] = useState<{ X: PlayerInfo | null; O: PlayerInfo | null }>({
     X: null,
     O: null,
@@ -70,6 +71,7 @@ export function useGameSocket() {
       setActivePlayer('X');
       setDrawOffered(false);
       setDrawOfferPending(false);
+      setDrawDeclined(false);
       updateMatchStatus('playing');
     });
 
@@ -104,6 +106,7 @@ export function useGameSocket() {
       setActivePlayer(null);
       setDrawOffered(false);
       setDrawOfferPending(false);
+      setDrawDeclined(false);
       updateMatchStatus('ended');
       if (mySymbolRef.current) {
         updateRating(data.ratingDelta[mySymbolRef.current]);
@@ -116,6 +119,8 @@ export function useGameSocket() {
 
     socket.on('game:draw-declined', () => {
       setDrawOfferPending(false);
+      setDrawDeclined(true);
+      setTimeout(() => setDrawDeclined(false), 3000);
     });
 
     // On reconnect: re-join queue if still searching, or sync game state if mid-game
@@ -206,6 +211,7 @@ export function useGameSocket() {
     queueTimedOut,
     drawOffered,
     drawOfferPending,
+    drawDeclined,
     joinQueue,
     cancelQueue,
     makeMove,

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { Cell } from '@tacfinity/shared';
 import { useGameSocket } from './hooks/useGameSocket';
 import { useAuth } from '@/features/auth/useAuth';
@@ -36,6 +37,7 @@ export function OnlineGamePage() {
     queueTimedOut,
     drawOffered,
     drawOfferPending,
+    drawDeclined,
     joinQueue,
     cancelQueue,
     makeMove,
@@ -45,6 +47,8 @@ export function OnlineGamePage() {
   } = useGameSocket();
 
   const { user } = useAuth();
+  const [confirmResign, setConfirmResign] = useState(false);
+  const [confirmDraw, setConfirmDraw] = useState(false);
   const isPlaying = matchStatus === 'playing' || matchStatus === 'ended';
   const opponentSymbol: 'X' | 'O' | null = mySymbol ? (mySymbol === 'X' ? 'O' : 'X') : null;
   const opponent = opponentSymbol ? players[opponentSymbol] : null;
@@ -107,20 +111,85 @@ export function OnlineGamePage() {
                     </Button>
                   </div>
                 </>
+              ) : confirmDraw ? (
+                <>
+                  <p className="text-xs text-muted-foreground text-center">Offer a draw?</p>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => {
+                        setConfirmDraw(false);
+                        offerDraw();
+                      }}
+                    >
+                      Yes
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => setConfirmDraw(false)}
+                    >
+                      No
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => setConfirmDraw(true)}
+                    disabled={drawOfferPending}
+                  >
+                    {drawOfferPending ? 'Draw offered…' : 'Offer Draw'}
+                  </Button>
+                  {drawDeclined && (
+                    <p className="text-xs text-muted-foreground text-center">
+                      Opponent declined your draw offer
+                    </p>
+                  )}
+                </>
+              )}
+              {confirmResign ? (
+                <>
+                  <p className="text-xs text-muted-foreground text-center">
+                    Are you sure you want to resign?
+                  </p>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      className="flex-1"
+                      onClick={() => {
+                        setConfirmResign(false);
+                        resign();
+                      }}
+                    >
+                      Yes
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => setConfirmResign(false)}
+                    >
+                      No
+                    </Button>
+                  </div>
+                </>
               ) : (
                 <Button
                   size="sm"
-                  variant="outline"
+                  variant="destructive"
                   className="w-full"
-                  onClick={offerDraw}
-                  disabled={drawOfferPending}
+                  onClick={() => setConfirmResign(true)}
                 >
-                  {drawOfferPending ? 'Draw offered…' : 'Offer Draw'}
+                  Resign
                 </Button>
               )}
-              <Button size="sm" variant="destructive" className="w-full" onClick={resign}>
-                Resign
-              </Button>
             </>
           )}
         </RightPanel>
