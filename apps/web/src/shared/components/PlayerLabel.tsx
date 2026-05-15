@@ -11,7 +11,7 @@ export function PlayerLabel({ username, rating, symbol, isMe = false, isActive =
     <div
       className={[
         'flex items-center gap-2 text-sm w-full px-1',
-        isActive ? 'ring-2 ring-primary rounded-md py-1' : '',
+        isActive ? 'ring-2 ring-primary/60 rounded-md py-1' : '',
       ].join(' ')}
     >
       <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center text-xs font-bold uppercase shrink-0">
@@ -21,7 +21,7 @@ export function PlayerLabel({ username, rating, symbol, isMe = false, isActive =
         {username}
       </span>
       {symbol && (
-        <span className={`text-xs font-bold ${symbol === 'X' ? 'text-blue-500' : 'text-red-500'}`}>
+        <span className={`text-xs font-bold ${symbol === 'X' ? 'text-player-x' : 'text-player-o'}`}>
           {symbol}
         </span>
       )}

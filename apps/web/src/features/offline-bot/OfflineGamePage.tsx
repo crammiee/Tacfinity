@@ -43,9 +43,7 @@ export function OfflineGamePage() {
 
           <GameBoard
             board={board}
-            cols={settings.cols}
-            rows={settings.rows}
-            winningCells={winningCells}
+            winCells={winningCells}
             isDisabled={isBoardDisabled}
             onCellClick={handleCellClick}
           />
