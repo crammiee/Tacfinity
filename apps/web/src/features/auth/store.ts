@@ -28,6 +28,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
   clearUser: () => {
     localStorage.removeItem('access_token');
+    localStorage.removeItem('cached_user');
     set({ user: null, accessToken: null, isLoggedIn: false });
   },
   setBootstrapping: (v) => set({ isBootstrapping: v }),

@@ -16,9 +16,19 @@ export function useBootstrapAuth() {
         accessToken: string;
       }>
     )
-      .then((data) => setUser(data.user, data.accessToken))
-      .catch(() => {
+      .then((data) => {
+        setUser(data.user, data.accessToken);
+        localStorage.setItem('cached_user', JSON.stringify(data.user));
+      })
+      .catch((err) => {
+        const isNetworkError = !err.response;
+        if (isNetworkError && cachedToken) {
+          const raw = localStorage.getItem('cached_user');
+          if (raw) setUser(JSON.parse(raw), cachedToken);
+          return;
+        }
         localStorage.removeItem('access_token');
+        localStorage.removeItem('cached_user');
       })
       .finally(() => setBootstrapping(false));
   }, []);

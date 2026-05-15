@@ -11,6 +11,9 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: false,
+      workbox: {
+        navigateFallback: '/index.html',
+      },
     }),
   ],
   base: '/',

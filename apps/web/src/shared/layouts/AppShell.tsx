@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom';
 import { Sidebar } from '@/shared/components/Sidebar';
 import { BottomNav } from '@/shared/components/BottomNav';
 import { OfflineBanner } from '@/pwa/OfflineBanner';
+import { PWAToast } from '@/pwa/PWAToast';
 
 export function AppShell() {
   return (
@@ -12,6 +13,7 @@ export function AppShell() {
         <Outlet />
       </div>
       <BottomNav />
+      <PWAToast />
     </div>
   );
 }
