@@ -8,6 +8,13 @@ export function useBootstrapAuth() {
 
   useEffect(() => {
     const cachedToken = localStorage.getItem('access_token');
+    const cachedUser = localStorage.getItem('cached_user');
+
+    if (!cachedToken && !cachedUser) {
+      setBootstrapping(false);
+      return;
+    }
+
     const config = cachedToken ? { headers: { Authorization: `Bearer ${cachedToken}` } } : {};
 
     (
