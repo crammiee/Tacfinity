@@ -165,37 +165,29 @@ export function BotGamePage(): React.ReactElement {
   return (
     <div className="flex flex-col md:flex-row flex-1 h-full relative">
       <MatchLayout
-        opponent={{ username: bot.name, rating: bot.rating, isActive: activePlayer === botSide }}
+        opponent={{
+          username: bot.name,
+          rating: bot.rating,
+          isActive: game.phase === 'playing' && activePlayer === botSide,
+        }}
         me={{
           username: user?.username ?? 'You',
           rating: user?.rating,
-          isActive: activePlayer === game.humanSide,
+          isActive: game.phase === 'playing' && activePlayer === game.humanSide,
         }}
       >
-        {game.phase === 'setup' ? (
-          <div className="border-2 border-dashed border-border rounded-lg w-75 h-75 flex items-center justify-center text-muted-foreground text-sm">
-            Configure settings and start
-          </div>
-        ) : (
-          <>
-            <p className="text-sm text-muted-foreground">
-              {buildStatusText(
-                game.phase,
-                game.winner,
-                game.humanSide,
-                game.isAiThinking,
-                bot.name
-              )}
-            </p>
-            <GameBoard
-              board={game.board}
-              cols={game.cols}
-              winCells={game.winCells}
-              disabled={game.phase === 'gameover' || game.isAiThinking}
-              onCellClick={game.handleCellClick}
-            />
-          </>
+        {game.phase !== 'setup' && (
+          <p className="text-sm text-muted-foreground">
+            {buildStatusText(game.phase, game.winner, game.humanSide, game.isAiThinking, bot.name)}
+          </p>
         )}
+        <GameBoard
+          board={game.phase === 'setup' ? Array(game.cols * game.rows).fill(null) : game.board}
+          cols={game.cols}
+          winCells={game.winCells}
+          disabled={game.phase !== 'playing' || game.isAiThinking}
+          onCellClick={game.handleCellClick}
+        />
       </MatchLayout>
 
       {game.phase === 'gameover' && game.winner && (

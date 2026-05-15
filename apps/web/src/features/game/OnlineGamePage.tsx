@@ -56,13 +56,13 @@ export function OnlineGamePage() {
           username: opponent?.username ?? (matchStatus === 'searching' ? 'Searching…' : 'Opponent'),
           rating: opponent?.rating,
           symbol: opponentSymbol ?? undefined,
-          isActive: activePlayer === opponentSymbol,
+          isActive: matchStatus === 'playing' && activePlayer === opponentSymbol,
         }}
         me={{
           username: user?.username ?? 'You',
           rating: user?.rating,
           symbol: mySymbol ?? undefined,
-          isActive: activePlayer === mySymbol,
+          isActive: matchStatus === 'playing' && activePlayer === mySymbol,
         }}
       >
         {isPlaying && (
