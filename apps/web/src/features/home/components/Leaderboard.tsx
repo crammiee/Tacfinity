@@ -18,7 +18,7 @@ export function Leaderboard(): React.ReactElement {
 
   if (isLoading)
     return (
-      <section className="w-md">
+      <section className="w-full max-w-md">
         <h2 className="text-xl font-bold mb-4">Top Players</h2>
         <div className="rounded-lg border divide-y">
           {Array.from({ length: 10 }).map((_, i) => (
@@ -35,7 +35,7 @@ export function Leaderboard(): React.ReactElement {
   if (isError) return <p className="text-destructive text-sm">Failed to load leaderboard.</p>;
 
   return (
-    <section className="w-md">
+    <section className="w-full max-w-md">
       <h2 className="text-xl font-bold mb-4">Top Players</h2>
       <div className="rounded-lg border divide-y">
         {data?.map((row) => {
@@ -48,7 +48,7 @@ export function Leaderboard(): React.ReactElement {
               }`}
             >
               <span className="text-muted-foreground w-6 shrink-0">#{row.rank}</span>
-              <span className="mr-auto">{row.username}</span>
+              <span className="flex-1 min-w-0 truncate">{row.username}</span>
               <span className="text-muted-foreground shrink-0 whitespace-nowrap">
                 ♟ {row.rating.toLocaleString()} ELO
               </span>
