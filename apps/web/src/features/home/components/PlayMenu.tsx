@@ -7,10 +7,10 @@ export function PlayMenu() {
       <h2 className="text-2xl font-bold">Play</h2>
       <div className="flex flex-col gap-3 w-full max-w-xs">
         <Button asChild size="lg">
-          <Link to="/play/online">Play Online</Link>
+          <Link to="/play/online">Play Ranked</Link>
         </Button>
         <Button asChild size="lg" variant="outline">
-          <Link to="/play/bot">Play Bots</Link>
+          <Link to="/play/bot">vs Bot</Link>
         </Button>
       </div>
     </section>

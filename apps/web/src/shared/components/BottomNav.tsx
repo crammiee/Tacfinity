@@ -5,7 +5,8 @@ import { useLogoutMutation } from '@/features/auth/api';
 
 export function BottomNav() {
   const { user, isLoggedIn } = useAuth();
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [playOpen, setPlayOpen] = useState(false);
   const logout = useLogoutMutation();
   const location = useLocation();
 
@@ -13,30 +14,55 @@ export function BottomNav() {
     return path !== '#' && location.pathname === path;
   }
 
+  const isPlayActive = location.pathname.startsWith('/play');
+
+  function closeAll() {
+    setProfileOpen(false);
+    setPlayOpen(false);
+  }
+
   return (
     <>
       {/* Backdrop */}
-      {menuOpen && (
-        <div className="fixed inset-0 z-30 md:hidden" onClick={() => setMenuOpen(false)} />
+      {(profileOpen || playOpen) && (
+        <div className="fixed inset-0 z-30 md:hidden" onClick={closeAll} />
+      )}
+
+      {/* Play drawer */}
+      {playOpen && (
+        <div className="fixed bottom-16 left-0 right-0 z-40 md:hidden glass border-t border-white/10 shadow-lg px-4 py-3 flex flex-col gap-1">
+          <Link
+            to="/play/online"
+            onClick={closeAll}
+            className="text-sm font-medium px-3 py-2 rounded-md hover:bg-secondary transition-colors"
+          >
+            Ranked
+          </Link>
+          <Link
+            to="/play/bot"
+            onClick={closeAll}
+            className="text-sm font-medium px-3 py-2 rounded-md hover:bg-secondary transition-colors"
+          >
+            vs Bot
+          </Link>
+        </div>
       )}
 
       {/* Profile / auth drawer */}
-      {menuOpen && (
+      {profileOpen && (
         <div className="fixed bottom-16 left-0 right-0 z-40 md:hidden glass border-t border-white/10 shadow-lg px-4 py-3 flex flex-col gap-1">
           {isLoggedIn && user ? (
             <>
-              {/* User info row */}
               <div className="flex items-center gap-2 px-2 py-2 border-b border-border mb-1">
                 <div className="w-7 h-7 rounded-full bg-accent flex items-center justify-center text-xs font-bold uppercase text-accent-foreground shrink-0">
                   {user.username[0]}
                 </div>
                 <span className="text-sm font-medium">{user.username}</span>
               </div>
-              {/* Logout always visible in drawer */}
               <button
                 onClick={() => {
                   logout.mutate();
-                  setMenuOpen(false);
+                  closeAll();
                 }}
                 disabled={logout.isPending}
                 className="text-sm font-medium px-3 py-2 rounded-md text-destructive hover:bg-secondary text-left disabled:opacity-50 transition-colors"
@@ -48,14 +74,14 @@ export function BottomNav() {
             <>
               <Link
                 to="/login"
-                onClick={() => setMenuOpen(false)}
+                onClick={closeAll}
                 className="text-sm font-medium px-3 py-2 rounded-md hover:bg-secondary transition-colors"
               >
                 Login
               </Link>
               <Link
                 to="/register"
-                onClick={() => setMenuOpen(false)}
+                onClick={closeAll}
                 className="text-sm font-medium px-3 py-2 rounded-md hover:bg-secondary transition-colors"
               >
                 Sign Up
@@ -81,7 +107,20 @@ export function BottomNav() {
           </svg>
         </NavIcon>
 
-        <NavIcon to="/play/online" label="Play" active={isActive('/play/online')}>
+        <button
+          onClick={() => {
+            setPlayOpen((o) => !o);
+            setProfileOpen(false);
+          }}
+          className={`relative flex flex-col items-center gap-0.5 text-xs px-3 py-1 transition-colors ${
+            isPlayActive || playOpen
+              ? 'text-primary'
+              : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          {isPlayActive && !playOpen && (
+            <span className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-px w-1 h-1 rounded-full bg-primary" />
+          )}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="w-5 h-5"
@@ -92,12 +131,16 @@ export function BottomNav() {
           >
             <polygon points="5 3 19 12 5 21 5 3" />
           </svg>
-        </NavIcon>
+          <span>Play</span>
+        </button>
 
         <button
-          onClick={() => setMenuOpen((o) => !o)}
+          onClick={() => {
+            setProfileOpen((o) => !o);
+            setPlayOpen(false);
+          }}
           className={`flex flex-col items-center gap-0.5 text-xs px-3 py-1 transition-colors ${
-            menuOpen ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
+            profileOpen ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
           }`}
         >
           <svg
