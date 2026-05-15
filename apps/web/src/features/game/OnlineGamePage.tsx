@@ -59,7 +59,7 @@ export function OnlineGamePage() {
   }
 
   return (
-    <div className="flex flex-col lg:flex-row flex-1 h-full relative">
+    <div className="flex flex-col lg:flex-row flex-1 h-full relative pb-16 md:pb-0">
       <MatchLayout
         opponent={{
           username: opponent?.username ?? (matchStatus === 'searching' ? 'Searching…' : 'Opponent'),
