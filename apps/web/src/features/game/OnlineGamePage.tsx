@@ -14,6 +14,7 @@ export function OnlineGamePage() {
     moves,
     players,
     result,
+    queueTimedOut,
     joinQueue,
     cancelQueue,
     makeMove,
@@ -34,10 +35,12 @@ export function OnlineGamePage() {
         {matchStatus === 'idle' && (
           <div className="flex flex-col items-center gap-4">
             <p className="text-muted-foreground text-sm">
-              Find an opponent and start a ranked game.
+              {queueTimedOut
+                ? 'No one seems to be in queue right now — try again later.'
+                : 'Find an opponent and start a ranked game.'}
             </p>
             <Button size="lg" onClick={joinQueue}>
-              Find Match
+              {queueTimedOut ? 'Try Again' : 'Find Match'}
             </Button>
           </div>
         )}

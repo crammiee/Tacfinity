@@ -1,14 +1,16 @@
 import { type AuthedSocket } from '../../shared/types/socket.js';
 import { gamesService } from '../games/games.service.js';
+import { logger } from '../../shared/lib/logger.js';
 
-const queue = new Set<AuthedSocket>();
+const queue = new Map<AuthedSocket, number>(); // socket → joinedAt ms
 
 async function joinQueue(socket: AuthedSocket): Promise<void> {
-  queue.add(socket);
+  queue.set(socket, Date.now());
+  logger.debug({ userId: socket.data.user.id, queueSize: queue.size }, 'socket joined queue');
 
   if (queue.size < 2) return;
 
-  const [s1, s2] = [...queue];
+  const [s1, s2] = [...queue.keys()];
   queue.delete(s1);
   queue.delete(s2);
 
@@ -17,6 +19,21 @@ async function joinQueue(socket: AuthedSocket): Promise<void> {
 
 function cancelQueue(socket: AuthedSocket): void {
   queue.delete(socket);
+  logger.debug({ userId: socket.data.user.id, queueSize: queue.size }, 'socket left queue');
+}
+
+function timeoutQueue(timeoutMs: number): void {
+  const now = Date.now();
+  logger.debug({ queueSize: queue.size }, 'queue timeout cron tick');
+  for (const [socket, joinedAt] of queue) {
+    if (now - joinedAt >= timeoutMs) {
+      queue.delete(socket);
+      logger.info({ userId: socket.data.user.id }, 'queue timeout — no match found');
+      socket.emit('queue:timeout', {
+        message: 'No one seems to be in queue right now — try again later.',
+      });
+    }
+  }
 }
 
 async function pair(s1: AuthedSocket, s2: AuthedSocket): Promise<void> {
@@ -46,4 +63,5 @@ async function pair(s1: AuthedSocket, s2: AuthedSocket): Promise<void> {
 export const matchmakingService = {
   joinQueue,
   cancelQueue,
+  timeoutQueue,
 };

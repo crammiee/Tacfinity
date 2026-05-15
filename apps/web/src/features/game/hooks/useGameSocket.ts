@@ -1,7 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { socket } from '@/shared/lib/socket';
 import type { Cell } from '@tacfinity/shared';
-import type { GameEndPayload, GameSyncPayload, MatchedPayload } from '@tacfinity/shared';
+import type {
+  GameEndPayload,
+  GameSyncPayload,
+  MatchedPayload,
+  QueueTimeoutPayload,
+} from '@tacfinity/shared';
 import { useAuthStore } from '@/features/auth/store';
 import type { PlayerInfo } from '../types';
 
@@ -30,6 +35,7 @@ export function useGameSocket() {
   const [activePlayer, setActivePlayer] = useState<'X' | 'O' | null>(null);
   const [moves, setMoves] = useState<string[]>([]);
   const [result, setResult] = useState<GameEndPayload | null>(null);
+  const [queueTimedOut, setQueueTimedOut] = useState(false);
   const [players, setPlayers] = useState<{ X: PlayerInfo | null; O: PlayerInfo | null }>({
     X: null,
     O: null,
@@ -45,6 +51,12 @@ export function useGameSocket() {
   }
 
   useEffect(() => {
+    socket.on('queue:timeout', (_data: QueueTimeoutPayload) => {
+      updateMatchStatus('idle');
+      setQueueTimedOut(true);
+      socket.disconnect();
+    });
+
     socket.on('queue:matched', (data: MatchedPayload) => {
       gameIdRef.current = data.gameId;
       mySymbolRef.current = data.yourSymbol;
@@ -92,9 +104,11 @@ export function useGameSocket() {
       }
     });
 
-    // On reconnect: if we were mid-game, request a full state sync from the server
+    // On reconnect: re-join queue if still searching, or sync game state if mid-game
     socket.on('connect', () => {
-      if (matchStatusRef.current === 'playing' && gameIdRef.current) {
+      if (matchStatusRef.current === 'searching') {
+        socket.emit('queue:join');
+      } else if (matchStatusRef.current === 'playing' && gameIdRef.current) {
         socket.emit('game:sync', { gameId: gameIdRef.current });
       }
     });
@@ -118,6 +132,7 @@ export function useGameSocket() {
       socket.off('connect');
       socket.off('disconnect');
       socket.off('connect_error');
+      socket.off('queue:timeout');
       socket.off('queue:matched');
       socket.off('game:update');
       socket.off('game:sync');
@@ -126,6 +141,7 @@ export function useGameSocket() {
   }, [updateRating]);
 
   function joinQueue() {
+    setQueueTimedOut(false);
     updateMatchStatus('searching');
     socket.auth = { token: useAuthStore.getState().accessToken };
     if (socket.connected) {
@@ -154,6 +170,7 @@ export function useGameSocket() {
     moves,
     players,
     result,
+    queueTimedOut,
     joinQueue,
     cancelQueue,
     makeMove,
