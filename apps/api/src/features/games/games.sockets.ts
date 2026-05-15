@@ -31,6 +31,36 @@ export function registerGameHandlers(
     socket.emit('game:sync', payload);
   });
 
+  socket.on('game:resign', async ({ gameId }) => {
+    try {
+      await gamesService.resignGame(gameId, socket.data.user.id, io);
+    } catch (err) {
+      const code = err instanceof AppError ? err.code : 'INTERNAL';
+      const message = err instanceof Error ? err.message : 'Server error';
+      socket.emit('game:error', { error: { code, message } });
+    }
+  });
+
+  socket.on('game:draw-offer', ({ gameId }) => {
+    const accepted = gamesService.offerDraw(gameId, socket.data.user.id);
+    if (accepted) {
+      socket.to(`game:${gameId}`).emit('game:draw-offered');
+    }
+  });
+
+  socket.on('game:draw-response', async ({ gameId, accepted }) => {
+    try {
+      const result = await gamesService.respondToDraw(gameId, socket.data.user.id, accepted, io);
+      if (result === 'declined') {
+        socket.to(`game:${gameId}`).emit('game:draw-declined');
+      }
+    } catch (err) {
+      const code = err instanceof AppError ? err.code : 'INTERNAL';
+      const message = err instanceof Error ? err.message : 'Server error';
+      socket.emit('game:error', { error: { code, message } });
+    }
+  });
+
   socket.on('disconnect', async () => {
     try {
       await gamesService.handlePlayerDisconnect(socket.data.user.id, io);

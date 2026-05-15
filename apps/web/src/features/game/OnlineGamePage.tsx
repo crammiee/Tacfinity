@@ -34,9 +34,14 @@ export function OnlineGamePage() {
     players,
     result,
     queueTimedOut,
+    drawOffered,
+    drawOfferPending,
     joinQueue,
     cancelQueue,
     makeMove,
+    resign,
+    offerDraw,
+    respondToDraw,
   } = useGameSocket();
 
   const { user } = useAuth();
@@ -80,12 +85,45 @@ export function OnlineGamePage() {
       </MatchLayout>
 
       {isPlaying ? (
-        <RightPanel
-          moves={moves}
-          mySymbol={mySymbol}
-          players={players}
-          activePlayer={activePlayer}
-        />
+        <RightPanel moves={moves} mySymbol={mySymbol} players={players} activePlayer={activePlayer}>
+          {matchStatus === 'playing' && (
+            <>
+              {drawOffered ? (
+                <>
+                  <p className="text-xs text-muted-foreground text-center">
+                    Opponent offers a draw
+                  </p>
+                  <div className="flex gap-2">
+                    <Button size="sm" className="flex-1" onClick={() => respondToDraw(true)}>
+                      Accept
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => respondToDraw(false)}
+                    >
+                      Decline
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="w-full"
+                  onClick={offerDraw}
+                  disabled={drawOfferPending}
+                >
+                  {drawOfferPending ? 'Draw offered…' : 'Offer Draw'}
+                </Button>
+              )}
+              <Button size="sm" variant="destructive" className="w-full" onClick={resign}>
+                Resign
+              </Button>
+            </>
+          )}
+        </RightPanel>
       ) : (
         <aside className="w-full md:w-64 md:shrink-0 border-t md:border-t-0 md:border-l flex flex-col justify-center gap-6 p-6">
           {matchStatus === 'searching' ? (

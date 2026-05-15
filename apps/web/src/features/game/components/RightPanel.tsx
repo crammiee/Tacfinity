@@ -11,9 +11,10 @@ interface Props {
   mySymbol: 'X' | 'O' | null;
   players: { X: PlayerInfo | null; O: PlayerInfo | null };
   activePlayer: 'X' | 'O' | null;
+  children?: React.ReactNode;
 }
 
-export function RightPanel({ moves, mySymbol, players, activePlayer }: Props) {
+export function RightPanel({ moves, mySymbol, players, activePlayer, children }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -57,6 +58,7 @@ export function RightPanel({ moves, mySymbol, players, activePlayer }: Props) {
           ))
         )}
       </div>
+      {children && <div className="p-3 border-t flex flex-col gap-2">{children}</div>}
     </aside>
   );
 }

@@ -210,6 +210,21 @@ export function BotGamePage(): React.ReactElement {
           isDisabled={isSetupDisabled}
           onChange={game.setHumanSide}
         />
+        {game.phase === 'playing' && (
+          <div className="flex flex-col gap-2">
+            <Button size="sm" variant="outline" className="w-full" onClick={game.offerDraw}>
+              Offer Draw
+            </Button>
+            {game.drawDeclined && (
+              <p className="text-xs text-muted-foreground text-center">
+                {bot.name} declined your draw offer
+              </p>
+            )}
+            <Button size="sm" variant="destructive" className="w-full" onClick={game.resign}>
+              Resign
+            </Button>
+          </div>
+        )}
         <Button size="lg" className="w-full" onClick={game.startGame}>
           {game.phase === 'setup' ? 'Start Game' : 'New Game'}
         </Button>

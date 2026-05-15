@@ -25,6 +25,7 @@ interface GameSession {
   wd: WinDetector;
   players: { X: User; O: User };
   moves: Move[];
+  pendingDrawOfferId: string | null;
 }
 
 const sessions = new Map<string, GameSession>();
@@ -57,6 +58,7 @@ async function createGameSession(xUser: User, oUser: User): Promise<{ gameId: st
     wd: new WinDetector(),
     players: { X: xUser, O: oUser },
     moves: [],
+    pendingDrawOfferId: null,
   });
 
   return { gameId: game.id };
@@ -215,9 +217,61 @@ async function endGame(
   sessions.delete(gameId);
 }
 
+async function resignGame(
+  gameId: string,
+  socketUserId: string,
+  io: Server<ClientToServerEvents, ServerToClientEvents>
+): Promise<void> {
+  const session = sessions.get(gameId);
+  if (!session) throw new ValidationError('Game session not found');
+
+  const { players } = session;
+  let resigningSymbol: Player;
+  if (players.X.id === socketUserId) resigningSymbol = 'X';
+  else if (players.O.id === socketUserId) resigningSymbol = 'O';
+  else throw new ValidationError('Player not in game');
+
+  const winner: Player = resigningSymbol === 'X' ? 'O' : 'X';
+  await endGame(session, winner, io);
+}
+
+function offerDraw(gameId: string, socketUserId: string): boolean {
+  const session = sessions.get(gameId);
+  if (!session) return false;
+
+  const { players } = session;
+  const isPlayer = players.X.id === socketUserId || players.O.id === socketUserId;
+  if (!isPlayer) return false;
+
+  session.pendingDrawOfferId = socketUserId;
+  return true;
+}
+
+async function respondToDraw(
+  gameId: string,
+  socketUserId: string,
+  accepted: boolean,
+  io: Server<ClientToServerEvents, ServerToClientEvents>
+): Promise<'accepted' | 'declined' | null> {
+  const session = sessions.get(gameId);
+  if (!session || !session.pendingDrawOfferId) return null;
+  if (session.pendingDrawOfferId === socketUserId) return null; // offerer can't respond to own offer
+
+  session.pendingDrawOfferId = null;
+
+  if (accepted) {
+    await endGame(session, null, io);
+    return 'accepted';
+  }
+  return 'declined';
+}
+
 export const gamesService = {
   createGameSession,
   applyMove,
   handlePlayerDisconnect,
   syncGame,
+  resignGame,
+  offerDraw,
+  respondToDraw,
 };

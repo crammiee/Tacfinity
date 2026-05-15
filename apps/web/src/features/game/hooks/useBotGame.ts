@@ -31,6 +31,7 @@ export interface BotGameState {
   rows: number;
   winLen: number;
   humanSide: Player;
+  drawDeclined: boolean;
 }
 
 export interface BotGameActions {
@@ -44,6 +45,8 @@ export interface BotGameActions {
   handleWinLenBlur: () => void;
   startGame: () => void;
   handleCellClick: (idx: number) => void;
+  resign: () => void;
+  offerDraw: () => void;
 }
 
 export function useBotGame(): BotGameState & BotGameActions {
@@ -57,6 +60,8 @@ export function useBotGame(): BotGameState & BotGameActions {
   const [winCells, setWinCells] = useState<number[]>([]);
   const [winner, setWinner] = useState<Player | 'draw' | null>(null);
   const [isAiThinking, setIsAiThinking] = useState(false);
+
+  const [drawDeclined, setDrawDeclined] = useState(false);
 
   const gameStateRef = useRef<GameState | null>(null);
   const winDetectorRef = useRef(new WinDetector());
@@ -184,6 +189,21 @@ export function useBotGame(): BotGameState & BotGameActions {
     setTimeout(() => doAiMove(gameState), AI_MOVE_DELAY_MS);
   }
 
+  function resign(): void {
+    const gameState = gameStateRef.current;
+    if (!gameState || phase !== 'playing') return;
+    gameState.gameOver = true;
+    const botSide: Player = humanSide === 'X' ? 'O' : 'X';
+    setWinner(botSide);
+    setPhase('gameover');
+  }
+
+  function offerDraw(): void {
+    if (phase !== 'playing') return;
+    setDrawDeclined(true);
+    setTimeout(() => setDrawDeclined(false), 3000);
+  }
+
   return {
     phase,
     board,
@@ -195,6 +215,7 @@ export function useBotGame(): BotGameState & BotGameActions {
     rows,
     winLen,
     humanSide,
+    drawDeclined,
     setDifficulty,
     setHumanSide,
     handleColsChange,
@@ -205,5 +226,7 @@ export function useBotGame(): BotGameState & BotGameActions {
     handleWinLenBlur,
     startGame,
     handleCellClick,
+    resign,
+    offerDraw,
   };
 }

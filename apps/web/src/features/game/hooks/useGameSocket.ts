@@ -36,6 +36,8 @@ export function useGameSocket() {
   const [moves, setMoves] = useState<string[]>([]);
   const [result, setResult] = useState<GameEndPayload | null>(null);
   const [queueTimedOut, setQueueTimedOut] = useState(false);
+  const [drawOffered, setDrawOffered] = useState(false);
+  const [drawOfferPending, setDrawOfferPending] = useState(false);
   const [players, setPlayers] = useState<{ X: PlayerInfo | null; O: PlayerInfo | null }>({
     X: null,
     O: null,
@@ -66,6 +68,8 @@ export function useGameSocket() {
       setMoves([]);
       setResult(null);
       setActivePlayer('X');
+      setDrawOffered(false);
+      setDrawOfferPending(false);
       updateMatchStatus('playing');
     });
 
@@ -98,10 +102,20 @@ export function useGameSocket() {
     socket.on('game:end', (data) => {
       setResult(data);
       setActivePlayer(null);
+      setDrawOffered(false);
+      setDrawOfferPending(false);
       updateMatchStatus('ended');
       if (mySymbolRef.current) {
         updateRating(data.ratingDelta[mySymbolRef.current]);
       }
+    });
+
+    socket.on('game:draw-offered', () => {
+      setDrawOffered(true);
+    });
+
+    socket.on('game:draw-declined', () => {
+      setDrawOfferPending(false);
     });
 
     // On reconnect: re-join queue if still searching, or sync game state if mid-game
@@ -137,6 +151,8 @@ export function useGameSocket() {
       socket.off('game:update');
       socket.off('game:sync');
       socket.off('game:end');
+      socket.off('game:draw-offered');
+      socket.off('game:draw-declined');
     };
   }, [updateRating]);
 
@@ -162,6 +178,23 @@ export function useGameSocket() {
     socket.emit('game:move', { gameId: gameIdRef.current, row, col });
   }
 
+  function resign() {
+    if (matchStatusRef.current !== 'playing' || !gameIdRef.current) return;
+    socket.emit('game:resign', { gameId: gameIdRef.current });
+  }
+
+  function offerDraw() {
+    if (matchStatusRef.current !== 'playing' || !gameIdRef.current) return;
+    setDrawOfferPending(true);
+    socket.emit('game:draw-offer', { gameId: gameIdRef.current });
+  }
+
+  function respondToDraw(accepted: boolean) {
+    if (!gameIdRef.current) return;
+    setDrawOffered(false);
+    socket.emit('game:draw-response', { gameId: gameIdRef.current, accepted });
+  }
+
   return {
     matchStatus,
     board,
@@ -171,8 +204,13 @@ export function useGameSocket() {
     players,
     result,
     queueTimedOut,
+    drawOffered,
+    drawOfferPending,
     joinQueue,
     cancelQueue,
     makeMove,
+    resign,
+    offerDraw,
+    respondToDraw,
   };
 }

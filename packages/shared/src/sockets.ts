@@ -4,6 +4,9 @@ export interface ClientToServerEvents {
   'queue:join': () => void;
   'game:move': (payload: { gameId: string; row: number; col: number }) => void;
   'game:sync': (payload: { gameId: string }) => void;
+  'game:resign': (payload: { gameId: string }) => void;
+  'game:draw-offer': (payload: { gameId: string }) => void;
+  'game:draw-response': (payload: { gameId: string; accepted: boolean }) => void;
 }
 
 export interface ServerToClientEvents {
@@ -13,6 +16,8 @@ export interface ServerToClientEvents {
   'game:end': (payload: GameEndPayload) => void;
   'game:error': (payload: GameErrorPayload) => void;
   'game:sync': (payload: GameSyncPayload) => void;
+  'game:draw-offered': () => void;
+  'game:draw-declined': () => void;
 }
 
 export interface MatchedPayload {
