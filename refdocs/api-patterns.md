@@ -297,7 +297,7 @@ This table is the source of truth. **When you add or change an endpoint, you upd
 | POST   | `/api/v1/auth/refresh`  | refresh cookie | —                            | `{ data: { user } }` (rotates cookies) | 30/min/ip   |
 | POST   | `/api/v1/auth/logout`   | access cookie  | —                            | 204                                    | —           |
 | GET    | `/api/v1/users/me`      | access         | —                            | `{ data: { user } }`                   | —           |
-| GET    | `/api/v1/users/:id`     | access         | —                            | `{ data: { user } }`                   | —           |
+| GET    | `/api/v1/users/:id`     | —              | —                            | `{ data: { user: PublicProfile } }`    | —           |
 | POST   | `/api/v1/rooms`         | access         | `createRoomSchema`           | `{ data: { room } }`                   | 20/min/user |
 | GET    | `/api/v1/rooms/:code`   | access         | —                            | `{ data: { room } }`                   | —           |
 | GET    | `/api/v1/games/:id`     | access         | —                            | `{ data: { game } }`                   | —           |

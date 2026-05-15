@@ -16,19 +16,17 @@ export function Sidebar() {
 
       <nav className="flex flex-col gap-1 flex-1">
         <NavItem to="/play/online">Play</NavItem>
-        <NavItem to="#">Watch</NavItem>
-        <NavItem to="#">Community</NavItem>
-        <NavItem to="#">Others</NavItem>
       </nav>
 
       <div className="flex flex-col gap-1 pt-4 border-t">
         {isLoggedIn && user ? (
           <>
+            <NavItem to={`/profile/${user.id}`}>{user.username}</NavItem>
             <button
               onClick={() => setMenuOpen((o) => !o)}
               className="text-sm font-medium px-3 py-2 rounded-md transition-colors hover:bg-accent text-foreground text-left"
             >
-              {user.username}
+              ⋯
             </button>
             {menuOpen && (
               <button
@@ -42,7 +40,6 @@ export function Sidebar() {
           </>
         ) : (
           <>
-            <NavItem to="#">Search</NavItem>
             <NavItem to="/login">Login</NavItem>
             <NavItem to="/register">Sign Up</NavItem>
           </>
