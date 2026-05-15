@@ -16,7 +16,22 @@ export function Leaderboard(): React.ReactElement {
     staleTime: 60_000,
   });
 
-  if (isLoading) return <p className="text-muted-foreground text-sm">Loading...</p>;
+  if (isLoading)
+    return (
+      <section className="w-md">
+        <h2 className="text-xl font-bold mb-4">Top Players</h2>
+        <div className="rounded-lg border divide-y">
+          {Array.from({ length: 10 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-3 px-4 py-3">
+              <div className="w-6 h-4 rounded bg-muted animate-pulse shrink-0" />
+              <div className="h-4 rounded bg-muted animate-pulse mr-auto w-28" />
+              <div className="h-4 rounded bg-muted animate-pulse w-20 shrink-0" />
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+
   if (isError) return <p className="text-destructive text-sm">Failed to load leaderboard.</p>;
 
   return (
