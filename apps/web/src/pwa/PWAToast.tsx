@@ -22,6 +22,7 @@ export function PWAToast() {
       <span className="text-foreground">App saved — bot game works offline</span>
       <button
         onClick={() => setDismissed(true)}
+        aria-label="Dismiss"
         className="text-muted-foreground hover:text-foreground transition-colors ml-1"
       >
         <X className="size-3.5" />
