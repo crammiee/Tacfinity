@@ -1,10 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { PlayerLabel } from '@/shared/components/PlayerLabel';
-
-export interface PlayerInfo {
-  username: string;
-  rating: number;
-}
+import type { PlayerInfo } from '../types';
 
 interface Props {
   moves: string[];

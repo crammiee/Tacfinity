@@ -1,20 +1,17 @@
 import { useState } from 'react';
-import type { Difficulty, Player } from '@tacfinity/shared';
+import type { Player } from '@tacfinity/shared';
 import { Button } from '@/shared/ui/button';
-import { Input } from '@/shared/ui/input';
-import { Label } from '@/shared/ui/label';
 import { useAuth } from '@/features/auth/useAuth';
 import { GameBoard } from './components/GameBoard';
 import { GameResultOverlay } from './components/GameResultOverlay';
 import { MatchLayout } from './components/MatchLayout';
-import { useBotGame, MIN_DIM, MAX_DIM } from './hooks/useBotGame';
-import type { BotGamePhase, BotGameActions, BotGameState } from './hooks/useBotGame';
-
-const BOT_META: Record<Difficulty, { name: string; rating: number }> = {
-  easy: { name: 'EasyBot', rating: 500 },
-  medium: { name: 'MediumBot', rating: 800 },
-  hard: { name: 'HardBot', rating: 1200 },
-};
+import { BoardSettings } from './components/BoardSettings';
+import { DifficultyPicker } from './components/DifficultyPicker';
+import { SidePicker } from './components/SidePicker';
+import { useBotGame } from './hooks/useBotGame';
+import { MIN_DIM } from './hooks/useBoardSettings';
+import type { BotGamePhase } from './types';
+import { BOT_META } from './constants';
 
 function buildStatusText(
   phase: BotGamePhase,
@@ -30,128 +27,6 @@ function buildStatusText(
   }
   if (isAiThinking) return `${botName} is thinking…`;
   return 'Your turn';
-}
-
-interface BoardSettingsProps {
-  game: BotGameState & BotGameActions;
-  isDisabled: boolean;
-}
-
-function BoardSettings({ game, isDisabled }: BoardSettingsProps): React.ReactElement {
-  return (
-    <div className="flex flex-col gap-2">
-      <p className="text-sm font-semibold mb-1">Board</p>
-      <div className="grid grid-cols-3 gap-2">
-        <div className="space-y-1">
-          <Label className="text-xs text-muted-foreground">Cols</Label>
-          <Input
-            type="number"
-            value={game.cols}
-            min={MIN_DIM}
-            max={MAX_DIM}
-            disabled={isDisabled}
-            onChange={(e) => game.handleColsChange(e.target.value)}
-            onBlur={game.handleColsBlur}
-          />
-        </div>
-        <div className="space-y-1">
-          <Label className="text-xs text-muted-foreground">Rows</Label>
-          <Input
-            type="number"
-            value={game.rows}
-            min={MIN_DIM}
-            max={MAX_DIM}
-            disabled={isDisabled}
-            onChange={(e) => game.handleRowsChange(e.target.value)}
-            onBlur={game.handleRowsBlur}
-          />
-        </div>
-        <div className="space-y-1">
-          <Label className="text-xs text-muted-foreground">Win</Label>
-          <Input
-            type="number"
-            value={game.winLen}
-            min={MIN_DIM}
-            max={Math.min(game.cols, game.rows)}
-            disabled={isDisabled}
-            onChange={(e) => game.handleWinLenChange(e.target.value)}
-            onBlur={game.handleWinLenBlur}
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-interface DifficultyPickerProps {
-  difficulty: Difficulty;
-  isDisabled: boolean;
-  onChange: (difficulty: Difficulty) => void;
-}
-
-function DifficultyPicker({
-  difficulty,
-  isDisabled,
-  onChange,
-}: DifficultyPickerProps): React.ReactElement {
-  return (
-    <div className="flex flex-col gap-2">
-      <p className="text-sm font-semibold mb-1">Difficulty</p>
-      {(['easy', 'medium', 'hard'] as Difficulty[]).map((d) => (
-        <label
-          key={d}
-          className="flex items-center justify-between gap-3 px-3 py-2 rounded-md border cursor-pointer hover:bg-accent transition-colors"
-        >
-          <div className="flex items-center gap-3">
-            <input
-              type="radio"
-              name="difficulty"
-              value={d}
-              checked={difficulty === d}
-              disabled={isDisabled}
-              onChange={() => onChange(d)}
-              className="accent-primary"
-            />
-            <span className="text-sm font-medium capitalize">{d}</span>
-          </div>
-          <span className="text-xs text-muted-foreground">~{BOT_META[d].rating}</span>
-        </label>
-      ))}
-    </div>
-  );
-}
-
-interface SidePickerProps {
-  humanSide: Player;
-  isDisabled: boolean;
-  onChange: (side: Player) => void;
-}
-
-function SidePicker({ humanSide, isDisabled, onChange }: SidePickerProps): React.ReactElement {
-  return (
-    <div className="flex flex-col gap-2">
-      <p className="text-sm font-semibold mb-1">You play as</p>
-      {(['X', 'O'] as Player[]).map((side) => (
-        <label
-          key={side}
-          className="flex items-center gap-3 px-3 py-2 rounded-md border cursor-pointer hover:bg-accent transition-colors"
-        >
-          <input
-            type="radio"
-            name="humanSide"
-            value={side}
-            checked={humanSide === side}
-            disabled={isDisabled}
-            onChange={() => onChange(side)}
-            className="accent-primary"
-          />
-          <span className="text-sm font-medium">
-            {side} {side === 'X' ? '(goes first)' : '(goes second)'}
-          </span>
-        </label>
-      ))}
-    </div>
-  );
 }
 
 export function BotGamePage(): React.ReactElement {
@@ -201,7 +76,18 @@ export function BotGamePage(): React.ReactElement {
       )}
 
       <aside className="w-full lg:w-64 lg:shrink-0 border-t lg:border-t-0 lg:border-l flex flex-col justify-center gap-6 p-6">
-        <BoardSettings game={game} isDisabled={isSetupDisabled} />
+        <BoardSettings
+          cols={game.cols}
+          rows={game.rows}
+          winLen={game.winLen}
+          isDisabled={isSetupDisabled}
+          onColsChange={game.handleColsChange}
+          onColsBlur={game.handleColsBlur}
+          onRowsChange={game.handleRowsChange}
+          onRowsBlur={game.handleRowsBlur}
+          onWinLenChange={game.handleWinLenChange}
+          onWinLenBlur={game.handleWinLenBlur}
+        />
         <DifficultyPicker
           difficulty={game.difficulty}
           isDisabled={isSetupDisabled}

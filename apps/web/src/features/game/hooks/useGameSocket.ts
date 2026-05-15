@@ -8,9 +8,7 @@ import type {
   QueueTimeoutPayload,
 } from '@tacfinity/shared';
 import { useAuthStore } from '@/features/auth/store';
-import type { PlayerInfo } from '../types';
-
-type MatchStatus = 'idle' | 'searching' | 'playing' | 'ended';
+import type { PlayerInfo, MatchStatus } from '../types';
 
 function buildPlayers(data: {
   yourSymbol: 'X' | 'O';
@@ -43,14 +41,20 @@ export function useGameSocket() {
     X: null,
     O: null,
   });
+
   const gameIdRef = useRef<string | null>(null);
   const mySymbolRef = useRef<'X' | 'O' | null>(null);
-  // Mirrors matchStatus so socket event closures always see the current value
   const matchStatusRef = useRef<MatchStatus>('idle');
 
-  function updateMatchStatus(status: MatchStatus) {
+  function updateMatchStatus(status: MatchStatus): void {
     matchStatusRef.current = status;
     setMatchStatus(status);
+  }
+
+  function resetDrawState(): void {
+    setDrawOffered(false);
+    setDrawOfferPending(false);
+    setDrawDeclined(false);
   }
 
   useEffect(() => {
@@ -69,9 +73,7 @@ export function useGameSocket() {
       setMoves([]);
       setResult(null);
       setActivePlayer('X');
-      setDrawOffered(false);
-      setDrawOfferPending(false);
-      setDrawDeclined(false);
+      resetDrawState();
       updateMatchStatus('playing');
     });
 
@@ -104,18 +106,14 @@ export function useGameSocket() {
     socket.on('game:end', (data) => {
       setResult(data);
       setActivePlayer(null);
-      setDrawOffered(false);
-      setDrawOfferPending(false);
-      setDrawDeclined(false);
+      resetDrawState();
       updateMatchStatus('ended');
       if (mySymbolRef.current) {
         updateRating(data.ratingDelta[mySymbolRef.current]);
       }
     });
 
-    socket.on('game:draw-offered', () => {
-      setDrawOffered(true);
-    });
+    socket.on('game:draw-offered', () => setDrawOffered(true));
 
     socket.on('game:draw-declined', () => {
       setDrawOfferPending(false);
@@ -123,7 +121,6 @@ export function useGameSocket() {
       setTimeout(() => setDrawDeclined(false), 3000);
     });
 
-    // On reconnect: re-join queue if still searching, or sync game state if mid-game
     socket.on('connect', () => {
       if (matchStatusRef.current === 'searching') {
         socket.emit('queue:join');
@@ -133,15 +130,12 @@ export function useGameSocket() {
     });
 
     socket.on('disconnect', (reason) => {
-      // Intentional disconnect (cancelQueue / logout): reset fully
-      // Transient drop: keep 'playing' so the connect handler above can request sync
       if (reason === 'io client disconnect') {
         updateMatchStatus('idle');
       }
     });
 
     socket.on('connect_error', () => {
-      // Only reset when not already in a game — server holds the session for 30s
       if (matchStatusRef.current !== 'playing') {
         updateMatchStatus('idle');
       }
@@ -164,11 +158,11 @@ export function useGameSocket() {
     };
   }, [updateRating]);
 
-  function resetToIdle() {
+  function resetToIdle(): void {
     updateMatchStatus('idle');
   }
 
-  function joinQueue() {
+  function joinQueue(): void {
     setQueueTimedOut(false);
     updateMatchStatus('searching');
     socket.auth = { token: useAuthStore.getState().accessToken };
@@ -180,28 +174,28 @@ export function useGameSocket() {
     }
   }
 
-  function cancelQueue() {
+  function cancelQueue(): void {
     socket.disconnect();
     updateMatchStatus('idle');
   }
 
-  function makeMove(row: number, col: number) {
+  function makeMove(row: number, col: number): void {
     if (matchStatusRef.current !== 'playing' || !gameIdRef.current) return;
     socket.emit('game:move', { gameId: gameIdRef.current, row, col });
   }
 
-  function resign() {
+  function resign(): void {
     if (matchStatusRef.current !== 'playing' || !gameIdRef.current) return;
     socket.emit('game:resign', { gameId: gameIdRef.current });
   }
 
-  function offerDraw() {
+  function offerDraw(): void {
     if (matchStatusRef.current !== 'playing' || !gameIdRef.current) return;
     setDrawOfferPending(true);
     socket.emit('game:draw-offer', { gameId: gameIdRef.current });
   }
 
-  function respondToDraw(accepted: boolean) {
+  function respondToDraw(accepted: boolean): void {
     if (!gameIdRef.current) return;
     setDrawOffered(false);
     socket.emit('game:draw-response', { gameId: gameIdRef.current, accepted });

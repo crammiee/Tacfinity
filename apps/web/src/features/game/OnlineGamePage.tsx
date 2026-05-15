@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import type { Cell } from '@tacfinity/shared';
 import { useGameSocket } from './hooks/useGameSocket';
 import { useAuth } from '@/features/auth/useAuth';
@@ -7,6 +6,7 @@ import { MatchmakingTimer } from './components/MatchmakingTimer';
 import { RightPanel } from './components/RightPanel';
 import { GameResultOverlay } from './components/GameResultOverlay';
 import { MatchLayout } from './components/MatchLayout';
+import { OnlineGameControls } from './components/OnlineGameControls';
 import { Button } from '@/shared/ui/button';
 
 const BOARD_COLS = 15;
@@ -25,7 +25,7 @@ function buildStatusText(
   return activePlayer === mySymbol ? 'Your turn' : "Opponent's turn";
 }
 
-export function OnlineGamePage() {
+export function OnlineGamePage(): React.ReactElement {
   const {
     matchStatus,
     board,
@@ -48,13 +48,11 @@ export function OnlineGamePage() {
   } = useGameSocket();
 
   const { user } = useAuth();
-  const [confirmResign, setConfirmResign] = useState(false);
-  const [confirmDraw, setConfirmDraw] = useState(false);
   const isPlaying = matchStatus === 'playing' || matchStatus === 'ended';
   const opponentSymbol: 'X' | 'O' | null = mySymbol ? (mySymbol === 'X' ? 'O' : 'X') : null;
   const opponent = opponentSymbol ? players[opponentSymbol] : null;
 
-  function handleCellClick(idx: number) {
+  function handleCellClick(idx: number): void {
     if (activePlayer !== mySymbol) return;
     makeMove(Math.floor(idx / BOARD_COLS), idx % BOARD_COLS);
   }
@@ -92,106 +90,14 @@ export function OnlineGamePage() {
       {isPlaying ? (
         <RightPanel moves={moves} mySymbol={mySymbol} players={players} activePlayer={activePlayer}>
           {matchStatus === 'playing' && (
-            <>
-              {drawOffered ? (
-                <>
-                  <p className="text-xs text-muted-foreground text-center">
-                    Opponent offers a draw
-                  </p>
-                  <div className="flex gap-2">
-                    <Button size="sm" className="flex-1" onClick={() => respondToDraw(true)}>
-                      Accept
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="flex-1"
-                      onClick={() => respondToDraw(false)}
-                    >
-                      Decline
-                    </Button>
-                  </div>
-                </>
-              ) : confirmDraw ? (
-                <>
-                  <p className="text-xs text-muted-foreground text-center">Offer a draw?</p>
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      className="flex-1"
-                      onClick={() => {
-                        setConfirmDraw(false);
-                        offerDraw();
-                      }}
-                    >
-                      Yes
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="flex-1"
-                      onClick={() => setConfirmDraw(false)}
-                    >
-                      No
-                    </Button>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => setConfirmDraw(true)}
-                    disabled={drawOfferPending}
-                  >
-                    {drawOfferPending ? 'Draw offered…' : 'Offer Draw'}
-                  </Button>
-                  {drawDeclined && (
-                    <p className="text-xs text-muted-foreground text-center">
-                      Opponent declined your draw offer
-                    </p>
-                  )}
-                </>
-              )}
-              {confirmResign ? (
-                <>
-                  <p className="text-xs text-muted-foreground text-center">
-                    Are you sure you want to resign?
-                  </p>
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      className="flex-1"
-                      onClick={() => {
-                        setConfirmResign(false);
-                        resign();
-                      }}
-                    >
-                      Yes
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="flex-1"
-                      onClick={() => setConfirmResign(false)}
-                    >
-                      No
-                    </Button>
-                  </div>
-                </>
-              ) : (
-                <Button
-                  size="sm"
-                  variant="destructive"
-                  className="w-full"
-                  onClick={() => setConfirmResign(true)}
-                >
-                  Resign
-                </Button>
-              )}
-            </>
+            <OnlineGameControls
+              drawOffered={drawOffered}
+              drawOfferPending={drawOfferPending}
+              drawDeclined={drawDeclined}
+              respondToDraw={respondToDraw}
+              offerDraw={offerDraw}
+              resign={resign}
+            />
           )}
         </RightPanel>
       ) : (
