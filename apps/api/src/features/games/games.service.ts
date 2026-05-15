@@ -15,6 +15,7 @@ import {
 import { ValidationError } from '../../shared/errors/AppError.js';
 import { logger } from '../../shared/lib/logger.js';
 import { gamesRepository } from './games.repository.js';
+import { leaderboardService } from '../leaderboard/leaderboard.service.js';
 
 const RECONNECT_WINDOW_MS = 30_000;
 
@@ -197,6 +198,8 @@ async function endGame(
     oId: players.O.id,
     oRatingAfter: oAfter,
   });
+
+  leaderboardService.invalidate();
 
   io.to(`game:${gameId}`).emit('game:end', {
     gameId,
