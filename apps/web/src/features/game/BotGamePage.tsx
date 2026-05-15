@@ -182,8 +182,8 @@ export function BotGamePage(): React.ReactElement {
           </p>
         )}
         <GameBoard
-          board={game.phase === 'setup' ? Array(game.cols * game.rows).fill(null) : game.board}
-          cols={game.cols}
+          board={game.phase === 'setup' ? Array(MIN_DIM * MIN_DIM).fill(null) : game.board}
+          cols={game.phase === 'setup' ? MIN_DIM : game.cols}
           winCells={game.winCells}
           disabled={game.phase !== 'playing' || game.isAiThinking}
           onCellClick={game.handleCellClick}
