@@ -196,7 +196,7 @@ export function BotGamePage(): React.ReactElement {
         <GameResultOverlay
           winner={game.winner}
           mySymbol={game.humanSide}
-          onPlayAgain={game.startGame}
+          onPlayAgain={game.resetToSetup}
         />
       )}
 

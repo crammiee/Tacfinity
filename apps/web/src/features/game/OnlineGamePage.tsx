@@ -38,6 +38,7 @@ export function OnlineGamePage() {
     drawOffered,
     drawOfferPending,
     drawDeclined,
+    resetToIdle,
     joinQueue,
     cancelQueue,
     makeMove,
@@ -222,7 +223,7 @@ export function OnlineGamePage() {
           winner={result.winner}
           mySymbol={mySymbol}
           ratingDelta={result.ratingDelta[mySymbol]}
-          onPlayAgain={joinQueue}
+          onPlayAgain={resetToIdle}
         />
       )}
     </div>

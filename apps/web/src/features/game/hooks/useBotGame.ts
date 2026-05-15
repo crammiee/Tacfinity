@@ -44,6 +44,7 @@ export interface BotGameActions {
   handleWinLenChange: (val: string) => void;
   handleWinLenBlur: () => void;
   startGame: () => void;
+  resetToSetup: () => void;
   handleCellClick: (idx: number) => void;
   resign: () => void;
   offerDraw: () => void;
@@ -189,6 +190,10 @@ export function useBotGame(): BotGameState & BotGameActions {
     setTimeout(() => doAiMove(gameState), AI_MOVE_DELAY_MS);
   }
 
+  function resetToSetup(): void {
+    setPhase('setup');
+  }
+
   function resign(): void {
     const gameState = gameStateRef.current;
     if (!gameState || phase !== 'playing') return;
@@ -225,6 +230,7 @@ export function useBotGame(): BotGameState & BotGameActions {
     handleWinLenChange,
     handleWinLenBlur,
     startGame,
+    resetToSetup,
     handleCellClick,
     resign,
     offerDraw,

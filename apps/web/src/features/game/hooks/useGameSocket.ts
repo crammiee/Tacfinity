@@ -164,6 +164,10 @@ export function useGameSocket() {
     };
   }, [updateRating]);
 
+  function resetToIdle() {
+    updateMatchStatus('idle');
+  }
+
   function joinQueue() {
     setQueueTimedOut(false);
     updateMatchStatus('searching');
@@ -215,6 +219,7 @@ export function useGameSocket() {
     drawOffered,
     drawOfferPending,
     drawDeclined,
+    resetToIdle,
     joinQueue,
     cancelQueue,
     makeMove,
