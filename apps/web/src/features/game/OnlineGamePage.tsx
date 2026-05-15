@@ -89,7 +89,12 @@ export function OnlineGamePage() {
 
       {/* Result overlay — rendered on top of the board */}
       {matchStatus === 'ended' && result && mySymbol && (
-        <GameResultOverlay result={result} mySymbol={mySymbol} onPlayAgain={joinQueue} />
+        <GameResultOverlay
+          winner={result.winner}
+          mySymbol={mySymbol}
+          ratingDelta={result.ratingDelta[mySymbol]}
+          onPlayAgain={joinQueue}
+        />
       )}
     </div>
   );
