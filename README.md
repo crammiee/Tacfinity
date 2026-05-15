@@ -2,6 +2,14 @@
 
 Online multiplayer Tic Tac Toe platform — rooms, real-time gameplay, ELO ratings, and offline bot support.
 
+## Live
+
+| Service  | URL                                                                   |
+| -------- | --------------------------------------------------------------------- |
+| Web      | [tacfinity-web.vercel.app](https://tacfinity-web.vercel.app) (Vercel) |
+| API      | Render                                                                |
+| Database | Neon (PostgreSQL)                                                     |
+
 ## Prerequisites
 
 - [Node.js](https://nodejs.org) v20+ (Prisma 6 requires it)
