@@ -1,21 +1,6 @@
 import { GameStatus } from '@prisma/client';
+import type { PublicProfile } from '@tacfinity/shared';
 import { db } from '../../shared/db/index.js';
-
-type GameHistoryEntry = {
-  gameId: string;
-  opponent: { id: string; username: string };
-  result: 'win' | 'loss' | 'draw';
-  ratingBefore: number;
-  ratingAfter: number | null;
-  endedAt: Date | null;
-};
-
-type PublicProfile = {
-  id: string;
-  username: string;
-  rating: number;
-  gameHistory: GameHistoryEntry[];
-};
 
 export const usersRepository = {
   async findPublicProfile(userId: string): Promise<PublicProfile | null> {
@@ -46,7 +31,7 @@ export const usersRepository = {
       take: 20,
     });
 
-    const gameHistory: GameHistoryEntry[] = gamePlayers.map((gp) => {
+    const gameHistory = gamePlayers.map((gp) => {
       const opponent = gp.game.gamePlayers.find((p) => p.userId !== userId);
       const result: 'win' | 'loss' | 'draw' =
         gp.game.winnerId === null ? 'draw' : gp.game.winnerId === userId ? 'win' : 'loss';
@@ -57,7 +42,7 @@ export const usersRepository = {
         result,
         ratingBefore: gp.ratingBefore,
         ratingAfter: gp.ratingAfter,
-        endedAt: gp.game.endedAt,
+        endedAt: gp.game.endedAt?.toISOString() ?? null,
       };
     });
 
