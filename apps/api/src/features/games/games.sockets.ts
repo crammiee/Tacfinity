@@ -50,9 +50,11 @@ export function registerGameHandlers(
 
   socket.on('game:draw-response', async ({ gameId, accepted }) => {
     try {
-      const result = await gamesService.respondToDraw(gameId, socket.data.user.id, accepted, io);
-      if (result === 'declined') {
-        socket.to(`game:${gameId}`).emit('game:draw-declined');
+      if (accepted) {
+        await gamesService.acceptDraw(gameId, socket.data.user.id, io);
+      } else {
+        const declined = gamesService.declineDraw(gameId, socket.data.user.id);
+        if (declined) socket.to(`game:${gameId}`).emit('game:draw-declined');
       }
     } catch (err) {
       const code = err instanceof AppError ? err.code : 'INTERNAL';
