@@ -297,7 +297,7 @@ This table is the source of truth. **When you add or change an endpoint, you upd
 | POST   | `/api/v1/auth/refresh`  | refresh cookie | —                                         | `{ data: { user } }` (rotates cookies)    | 30/min/ip   |
 | POST   | `/api/v1/auth/logout`   | access cookie  | —                                         | 204                                       | —           |
 | GET    | `/api/v1/users/me`      | access         | —                                         | `{ data: { user } }`                      | —           |
-| GET    | `/api/v1/users/:id`     | access         | —                                         | `{ data: { user } }`                      | —           |
+| GET    | `/api/v1/users/:id`     | —              | —                                         | `{ data: { user: PublicProfile } }`       | —           |
 | POST   | `/api/v1/rooms`         | access         | `createRoomSchema`                        | `{ data: { room } }`                      | 20/min/user |
 | GET    | `/api/v1/rooms/:code`   | access         | —                                         | `{ data: { room } }`                      | —           |
 | GET    | `/api/v1/games/:id`     | access         | —                                         | `{ data: { game } }`                      | —           |
@@ -311,13 +311,15 @@ This table is the source of truth. **When you add or change an endpoint, you upd
 
 All payload types are defined in `packages/shared/src/sockets.ts`. Import from there — never define payload shapes locally in either app.
 
-| Event           | Direction | Payload                                                                                      | Auth     |
-| --------------- | --------- | -------------------------------------------------------------------------------------------- | -------- |
-| `queue:join`    | C→S       | —                                                                                            | required |
-| `queue:matched` | S→C       | `MatchedPayload` (`gameId, yourSymbol, yourRating, opponentUsername, opponentRating`)        | —        |
-| `game:move`     | C→S       | `{ gameId: string; row: number; col: number }`                                               | required |
-| `game:update`   | S→C       | `GameUpdatePayload` (`gameId, tgnToken, nextPlayer: 'X'\|'O'`)                               | —        |
-| `game:end`      | S→C       | `GameEndPayload` (`gameId, winner: 'X'\|'O'\|'draw', ratingDelta: { X: number; O: number }`) | —        |
+| Event           | Direction | Payload                                                                                                                                  | Auth     |
+| --------------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| `queue:join`    | C→S       | —                                                                                                                                        | required |
+| `queue:matched` | S→C       | `MatchedPayload` (`gameId, yourSymbol, yourRating, opponentUsername, opponentRating`)                                                    | —        |
+| `game:move`     | C→S       | `{ gameId: string; row: number; col: number }`                                                                                           | required |
+| `game:update`   | S→C       | `GameUpdatePayload` (`gameId, tgnToken, nextPlayer: 'X'\|'O'`)                                                                           | —        |
+| `game:end`      | S→C       | `GameEndPayload` (`gameId, winner: 'X'\|'O'\|'draw', ratingDelta: { X: number; O: number }`)                                             | —        |
+| `game:sync`     | C→S       | `{ gameId: string }` — request full state after reconnect; cancels pending forfeit timer                                                 | required |
+| `game:sync`     | S→C       | `GameSyncPayload` (`gameId, board, moves[], nextPlayer, yourSymbol, opponentUsername, opponentRating, yourRating`) — full board snapshot | —        |
 
 Same rule as REST: this table is kept in sync with handlers in the same PR.
 
