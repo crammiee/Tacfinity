@@ -59,7 +59,7 @@ export function OnlineGamePage() {
   }
 
   return (
-    <div className="flex flex-col md:flex-row flex-1 h-full relative">
+    <div className="flex flex-col lg:flex-row flex-1 h-full relative">
       <MatchLayout
         opponent={{
           username: opponent?.username ?? (matchStatus === 'searching' ? 'Searching…' : 'Opponent'),
@@ -194,7 +194,7 @@ export function OnlineGamePage() {
           )}
         </RightPanel>
       ) : (
-        <aside className="w-full md:w-64 md:shrink-0 border-t md:border-t-0 md:border-l flex flex-col justify-center gap-6 p-6">
+        <aside className="w-full lg:w-64 lg:shrink-0 border-t lg:border-t-0 lg:border-l flex flex-col justify-center gap-6 p-6">
           {matchStatus === 'searching' ? (
             <>
               <MatchmakingTimer searching />

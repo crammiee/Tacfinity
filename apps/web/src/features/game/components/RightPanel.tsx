@@ -26,7 +26,7 @@ export function RightPanel({ moves, mySymbol, players, activePlayer, children }:
   const opponentSymbol = mySymbol === 'X' ? 'O' : 'X';
 
   return (
-    <aside className="w-full md:w-64 md:shrink-0 border-t md:border-t-0 md:border-l flex flex-col max-h-48 md:max-h-none md:h-full">
+    <aside className="w-full lg:w-64 lg:shrink-0 border-t lg:border-t-0 lg:border-l flex flex-col max-h-48 lg:max-h-none lg:h-full">
       <div className="flex flex-col gap-3 p-4 border-b">
         {players[opponentSymbol] && (
           <PlayerLabel

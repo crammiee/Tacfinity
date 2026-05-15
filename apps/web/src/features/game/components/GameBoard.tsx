@@ -14,7 +14,7 @@ export function GameBoard({ board, cols = 11, winCells, disabled, onCellClick }:
 
   // Cell size = the smaller of (max board width / cols) and (max board height / rows).
   // This keeps cells square and the board visible without scrolling in both directions.
-  const cellSize = `min(calc(min(90vw, 580px) / ${cols}), calc(min(60vh, 560px) / ${rows}))`;
+  const cellSize = `min(calc(min(90cqw, 580px) / ${cols}), calc(min(60vh, 560px) / ${rows}))`;
 
   return (
     <div

@@ -165,7 +165,7 @@ export function BotGamePage(): React.ReactElement {
     game.phase === 'playing' ? (game.isAiThinking ? botSide : game.humanSide) : null;
 
   return (
-    <div className="flex flex-col md:flex-row flex-1 h-full relative">
+    <div className="flex flex-col lg:flex-row flex-1 h-full relative">
       <MatchLayout
         opponent={{
           username: bot.name,
@@ -200,7 +200,7 @@ export function BotGamePage(): React.ReactElement {
         />
       )}
 
-      <aside className="w-full md:w-64 md:shrink-0 border-t md:border-t-0 md:border-l flex flex-col justify-center gap-6 p-6">
+      <aside className="w-full lg:w-64 lg:shrink-0 border-t lg:border-t-0 lg:border-l flex flex-col justify-center gap-6 p-6">
         <BoardSettings game={game} isDisabled={isSetupDisabled} />
         <DifficultyPicker
           difficulty={game.difficulty}
