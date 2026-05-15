@@ -1,9 +1,11 @@
 import type { Cell } from '@tacfinity/shared';
 import { useGameSocket } from './hooks/useGameSocket';
+import { useAuth } from '@/features/auth/useAuth';
 import { GameBoard } from './components/GameBoard';
 import { MatchmakingTimer } from './components/MatchmakingTimer';
 import { RightPanel } from './components/RightPanel';
 import { GameResultOverlay } from './components/GameResultOverlay';
+import { MatchLayout } from './components/MatchLayout';
 import { Button } from '@/shared/ui/button';
 
 const BOARD_COLS = 15;
@@ -37,7 +39,10 @@ export function OnlineGamePage() {
     makeMove,
   } = useGameSocket();
 
+  const { user } = useAuth();
   const isPlaying = matchStatus === 'playing' || matchStatus === 'ended';
+  const opponentSymbol: 'X' | 'O' | null = mySymbol ? (mySymbol === 'X' ? 'O' : 'X') : null;
+  const opponent = opponentSymbol ? players[opponentSymbol] : null;
 
   function handleCellClick(idx: number) {
     if (activePlayer !== mySymbol) return;
@@ -46,7 +51,20 @@ export function OnlineGamePage() {
 
   return (
     <div className="flex flex-col md:flex-row flex-1 h-full relative">
-      <div className="flex flex-1 flex-col items-center justify-center gap-4 p-6">
+      <MatchLayout
+        opponent={{
+          username: opponent?.username ?? (matchStatus === 'searching' ? 'Searching…' : 'Opponent'),
+          rating: opponent?.rating,
+          symbol: opponentSymbol ?? undefined,
+          isActive: activePlayer === opponentSymbol,
+        }}
+        me={{
+          username: user?.username ?? 'You',
+          rating: user?.rating,
+          symbol: mySymbol ?? undefined,
+          isActive: activePlayer === mySymbol,
+        }}
+      >
         {isPlaying && (
           <p className="text-sm text-muted-foreground">
             {buildStatusText(result?.winner, mySymbol, activePlayer, matchStatus === 'ended')}
@@ -59,7 +77,7 @@ export function OnlineGamePage() {
           disabled={!isPlaying || matchStatus === 'ended' || activePlayer !== mySymbol}
           onCellClick={handleCellClick}
         />
-      </div>
+      </MatchLayout>
 
       {isPlaying ? (
         <RightPanel

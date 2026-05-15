@@ -3,9 +3,9 @@ import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
 import { Label } from '@/shared/ui/label';
 import { useAuth } from '@/features/auth/useAuth';
-import { PlayerLabel } from '@/shared/components/PlayerLabel';
 import { GameBoard } from './components/GameBoard';
 import { GameResultOverlay } from './components/GameResultOverlay';
+import { MatchLayout } from './components/MatchLayout';
 import { useBotGame, MIN_DIM, MAX_DIM } from './hooks/useBotGame';
 import type { BotGamePhase, BotGameActions, BotGameState } from './hooks/useBotGame';
 
@@ -158,12 +158,20 @@ export function BotGamePage(): React.ReactElement {
   const game = useBotGame();
   const bot = BOT_META[game.difficulty];
   const isSetupDisabled = game.phase === 'playing';
+  const botSide: Player = game.humanSide === 'X' ? 'O' : 'X';
+  const activePlayer: Player | null =
+    game.phase === 'playing' ? (game.isAiThinking ? botSide : game.humanSide) : null;
 
   return (
     <div className="flex flex-col md:flex-row flex-1 h-full relative">
-      <div className="flex flex-1 flex-col items-center justify-center gap-4 p-6">
-        <PlayerLabel username={bot.name} rating={bot.rating} />
-
+      <MatchLayout
+        opponent={{ username: bot.name, rating: bot.rating, isActive: activePlayer === botSide }}
+        me={{
+          username: user?.username ?? 'You',
+          rating: user?.rating,
+          isActive: activePlayer === game.humanSide,
+        }}
+      >
         {game.phase === 'setup' ? (
           <div className="border-2 border-dashed border-border rounded-lg w-75 h-75 flex items-center justify-center text-muted-foreground text-sm">
             Configure settings and start
@@ -188,9 +196,7 @@ export function BotGamePage(): React.ReactElement {
             />
           </>
         )}
-
-        <PlayerLabel username={user?.username ?? 'You'} rating={1000} isMe />
-      </div>
+      </MatchLayout>
 
       {game.phase === 'gameover' && game.winner && (
         <GameResultOverlay

@@ -1,6 +1,6 @@
 interface Props {
   username: string;
-  rating: number;
+  rating?: number;
   symbol?: 'X' | 'O';
   isMe?: boolean;
   isActive?: boolean;
@@ -25,7 +25,9 @@ export function PlayerLabel({ username, rating, symbol, isMe = false, isActive =
           {symbol}
         </span>
       )}
-      <span className="ml-auto text-muted-foreground shrink-0">♟ {rating.toLocaleString()}</span>
+      <span className="ml-auto text-muted-foreground shrink-0">
+        {rating !== undefined ? `♟ ${rating.toLocaleString()}` : '—'}
+      </span>
     </div>
   );
 }
