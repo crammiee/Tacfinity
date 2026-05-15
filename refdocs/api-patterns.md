@@ -290,18 +290,18 @@ Socket tests follow the same Arrange/Act/Assert shape, with a `makeSocketClient(
 
 This table is the source of truth. **When you add or change an endpoint, you update this table in the same PR.** CI runs a grep check: every router handler must have a matching row.
 
-| Method | Path                    | Auth           | Body schema                  | Response                               | Rate limit  |
-| ------ | ----------------------- | -------------- | ---------------------------- | -------------------------------------- | ----------- |
-| POST   | `/api/v1/auth/register` | —              | `registerSchema`             | `{ data: { user } }`                   | 5/min/ip    |
-| POST   | `/api/v1/auth/login`    | —              | `loginSchema`                | `{ data: { user } }` (sets cookies)    | 10/min/ip   |
-| POST   | `/api/v1/auth/refresh`  | refresh cookie | —                            | `{ data: { user } }` (rotates cookies) | 30/min/ip   |
-| POST   | `/api/v1/auth/logout`   | access cookie  | —                            | 204                                    | —           |
-| GET    | `/api/v1/users/me`      | access         | —                            | `{ data: { user } }`                   | —           |
-| GET    | `/api/v1/users/:id`     | access         | —                            | `{ data: { user } }`                   | —           |
-| POST   | `/api/v1/rooms`         | access         | `createRoomSchema`           | `{ data: { room } }`                   | 20/min/user |
-| GET    | `/api/v1/rooms/:code`   | access         | —                            | `{ data: { room } }`                   | —           |
-| GET    | `/api/v1/games/:id`     | access         | —                            | `{ data: { game } }`                   | —           |
-| GET    | `/api/v1/leaderboard`   | —              | query: `{ cursor?, limit? }` | `{ data: { items, nextCursor } }`      | 60/min/ip   |
+| Method | Path                    | Auth           | Body schema                               | Response                                  | Rate limit  |
+| ------ | ----------------------- | -------------- | ----------------------------------------- | ----------------------------------------- | ----------- |
+| POST   | `/api/v1/auth/register` | —              | `registerSchema`                          | `{ data: { user } }`                      | 5/min/ip    |
+| POST   | `/api/v1/auth/login`    | —              | `loginSchema`                             | `{ data: { user } }` (sets cookies)       | 10/min/ip   |
+| POST   | `/api/v1/auth/refresh`  | refresh cookie | —                                         | `{ data: { user } }` (rotates cookies)    | 30/min/ip   |
+| POST   | `/api/v1/auth/logout`   | access cookie  | —                                         | 204                                       | —           |
+| GET    | `/api/v1/users/me`      | access         | —                                         | `{ data: { user } }`                      | —           |
+| GET    | `/api/v1/users/:id`     | access         | —                                         | `{ data: { user } }`                      | —           |
+| POST   | `/api/v1/rooms`         | access         | `createRoomSchema`                        | `{ data: { room } }`                      | 20/min/user |
+| GET    | `/api/v1/rooms/:code`   | access         | —                                         | `{ data: { room } }`                      | —           |
+| GET    | `/api/v1/games/:id`     | access         | —                                         | `{ data: { game } }`                      | —           |
+| GET    | `/api/v1/leaderboard`   | —              | query: `{ limit? }` (default 10, max 100) | `{ data: { items: LeaderboardEntry[] } }` | 60/min/ip   |
 
 (Updated as endpoints are added. Anything live must appear here.)
 
