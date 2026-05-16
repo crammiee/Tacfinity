@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { apiClient } from '@/shared/lib/axios';
 import { useAuthStore } from './store';
-import type { RegisterInput, LoginInput } from '@tacfinity/shared';
+import type { RegisterFormInput, LoginInput } from '@tacfinity/shared';
 
 interface LoginResponse {
   user: { id: string; username: string; email: string; rating: number };
@@ -12,7 +12,7 @@ interface LoginResponse {
 export function useRegisterMutation() {
   const navigate = useNavigate();
   return useMutation({
-    mutationFn: async (input: RegisterInput) => {
+    mutationFn: async (input: RegisterFormInput) => {
       return apiClient.post('/api/v1/auth/register', input);
     },
     onSuccess: () => {

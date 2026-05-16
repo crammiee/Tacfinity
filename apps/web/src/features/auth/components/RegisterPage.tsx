@@ -11,10 +11,11 @@ export function RegisterPage() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    mutation.mutate({ username, email, password });
+    mutation.mutate({ username, email, password, confirmPassword });
   };
 
   return (
@@ -54,9 +55,21 @@ export function RegisterPage() {
           <Input
             id="password"
             type="password"
-            placeholder="Min. 8 characters"
+            placeholder="Min. 8 chars, with A-Z, a-z, 0-9"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            disabled={mutation.isPending}
+            required
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="confirmPassword">Confirm password</Label>
+          <Input
+            id="confirmPassword"
+            type="password"
+            placeholder="Re-enter your password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
             disabled={mutation.isPending}
             required
           />
