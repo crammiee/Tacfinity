@@ -3,6 +3,6 @@ export interface PlayerInfo {
   rating: number;
 }
 
-export type MatchStatus = 'idle' | 'searching' | 'playing' | 'ended';
+export type MatchStatus = 'idle' | 'searching' | 'resuming' | 'playing' | 'ended';
 
 export type BotGamePhase = 'setup' | 'playing' | 'gameover';

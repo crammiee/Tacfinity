@@ -5,7 +5,8 @@ export type ErrorCode =
   | 'CONFLICT'
   | 'VALIDATION_ERROR'
   | 'RATE_LIMITED'
-  | 'INTERNAL';
+  | 'INTERNAL'
+  | 'GAME_ENDED';
 
 export class AppError extends Error {
   constructor(

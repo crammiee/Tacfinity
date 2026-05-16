@@ -1,6 +1,9 @@
+import { useEffect, useRef } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import type { Cell } from '@tacfinity/shared';
 import { useGameSocket } from './hooks/useGameSocket';
 import { useAuth } from '@/features/auth/useAuth';
+import { Toaster } from './components/Toaster';
 import { GameBoard } from './components/GameBoard';
 import { MatchmakingTimer } from './components/MatchmakingTimer';
 import { RightPanel } from './components/RightPanel';
@@ -26,8 +29,13 @@ function buildStatusText(
 }
 
 export function OnlineGamePage(): React.ReactElement {
+  const { code } = useParams<{ code?: string }>();
+  const navigate = useNavigate();
+  const resumeAttempted = useRef(false);
+
   const {
     matchStatus,
+    roomCode,
     board,
     mySymbol,
     activePlayer,
@@ -39,6 +47,7 @@ export function OnlineGamePage(): React.ReactElement {
     drawOfferPending,
     drawDeclined,
     resetToIdle,
+    resumeFromCode,
     joinQueue,
     cancelQueue,
     makeMove,
@@ -48,6 +57,32 @@ export function OnlineGamePage(): React.ReactElement {
   } = useGameSocket();
 
   const { user } = useAuth();
+
+  // On mount with a code in URL, attempt to rejoin the match
+  useEffect(() => {
+    if (!code || resumeAttempted.current || matchStatus !== 'idle') return;
+    resumeAttempted.current = true;
+    resumeFromCode(code);
+  }, [code, matchStatus, resumeFromCode]);
+
+  // When roomCode is learned (fresh match or successful resume), sync the URL
+  useEffect(() => {
+    if (!roomCode) return;
+    const target = `/play/online/${roomCode}`;
+    if (location.pathname !== target) navigate(target, { replace: true });
+  }, [roomCode, navigate]);
+
+  // If resume failed (status back to idle, no roomCode set), strip the code from URL
+  useEffect(() => {
+    if (code && matchStatus === 'idle' && !roomCode && resumeAttempted.current) {
+      navigate('/play/online', { replace: true });
+    }
+  }, [code, matchStatus, roomCode, navigate]);
+
+  function handleResetToIdle(): void {
+    resetToIdle();
+    if (code ?? roomCode) navigate('/play/online', { replace: true });
+  }
   const isPlaying = matchStatus === 'playing' || matchStatus === 'ended';
   const opponentSymbol: 'X' | 'O' | null = mySymbol ? (mySymbol === 'X' ? 'O' : 'X') : null;
   const opponent = opponentSymbol ? players[opponentSymbol] : null;
@@ -59,6 +94,7 @@ export function OnlineGamePage(): React.ReactElement {
 
   return (
     <div className="flex flex-col lg:flex-row flex-1 h-full relative pb-16 md:pb-0">
+      <Toaster />
       <MatchLayout
         opponent={{
           username: opponent?.username ?? (matchStatus === 'searching' ? 'Searching…' : 'Opponent'),
@@ -109,6 +145,8 @@ export function OnlineGamePage(): React.ReactElement {
                 Cancel
               </Button>
             </>
+          ) : matchStatus === 'resuming' ? (
+            <p className="text-sm text-muted-foreground">Reconnecting…</p>
           ) : (
             <>
               {queueTimedOut && (
@@ -129,7 +167,7 @@ export function OnlineGamePage(): React.ReactElement {
           winner={result.winner}
           mySymbol={mySymbol}
           ratingDelta={result.ratingDelta[mySymbol]}
-          onPlayAgain={resetToIdle}
+          onPlayAgain={handleResetToIdle}
         />
       )}
     </div>

@@ -28,6 +28,7 @@ export function AppRoutes() {
 
           <Route element={<RequireAuth />}>
             <Route path="/play/online" element={<OnlineGamePage />} />
+            <Route path="/play/online/:code" element={<OnlineGamePage />} />
           </Route>
         </Route>
 

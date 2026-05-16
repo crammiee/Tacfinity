@@ -18,17 +18,19 @@ export function registerGameHandlers(
     }
   });
 
-  socket.on('game:sync', ({ gameId }) => {
-    const payload = gamesService.syncGame(gameId, socket.data.user.id);
-    if (!payload) {
-      socket.emit('game:error', {
-        error: { code: 'NOT_FOUND', message: 'Game not found or you are not a player' },
-      });
-      return;
-    }
-    // intentional: emit below targets this socket directly, not the room — join can settle after
-    void socket.join(`game:${gameId}`);
-    socket.emit('game:sync', payload);
+  socket.on('game:sync', (identifier) => {
+    void (async () => {
+      try {
+        const payload = await gamesService.syncGame(identifier, socket.data.user.id);
+        // intentional: emit below targets this socket directly, not the room — join can settle after
+        void socket.join(`game:${payload.gameId}`);
+        socket.emit('game:sync', payload);
+      } catch (err) {
+        const code = err instanceof AppError ? err.code : 'INTERNAL';
+        const message = err instanceof Error ? err.message : 'Server error';
+        socket.emit('game:error', { error: { code, message } });
+      }
+    })();
   });
 
   socket.on('game:resign', async ({ gameId }) => {

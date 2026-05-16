@@ -10,9 +10,13 @@ import {
   clearDisconnectTimer,
 } from './games.state.js';
 import { endGame } from './games.end.js';
+import { AppError, ForbiddenError, NotFoundError } from '../../shared/errors/AppError.js';
 
-export async function createGameSession(xUser: User, oUser: User): Promise<{ gameId: string }> {
-  const { game } = await gamesRepository.createRoomAndGame(
+export async function createGameSession(
+  xUser: User,
+  oUser: User
+): Promise<{ gameId: string; roomCode: string }> {
+  const { game, room } = await gamesRepository.createRoomAndGame(
     xUser.id,
     oUser.id,
     xUser.rating,
@@ -39,7 +43,7 @@ export async function createGameSession(xUser: User, oUser: User): Promise<{ gam
     pendingDrawOfferId: null,
   });
 
-  return { gameId: game.id };
+  return { gameId: game.id, roomCode: room.code.replace(/^MM-/, '') };
 }
 
 export async function handlePlayerDisconnect(socketUserId: string, io: IoServer): Promise<void> {
@@ -64,14 +68,36 @@ export async function handlePlayerDisconnect(socketUserId: string, io: IoServer)
   }
 }
 
-export function syncGame(gameId: string, socketUserId: string): GameSyncPayload | null {
+export async function syncGame(
+  identifier: { gameId: string } | { roomCode: string },
+  socketUserId: string
+): Promise<GameSyncPayload> {
+  let gameId: string;
+  let roomCode: string;
+
+  if ('gameId' in identifier) {
+    const found = await gamesRepository.findGameByGameId(identifier.gameId);
+    if (!found) throw new NotFoundError('Game');
+    if (found.gameStatus !== 'IN_PROGRESS')
+      throw new AppError('GAME_ENDED', 400, 'This match has already ended');
+    gameId = identifier.gameId;
+    roomCode = found.roomCode.replace(/^MM-/, '');
+  } else {
+    const found = await gamesRepository.findGameByRoomCode(identifier.roomCode);
+    if (!found) throw new NotFoundError('Game');
+    if (found.gameStatus !== 'IN_PROGRESS')
+      throw new AppError('GAME_ENDED', 400, 'This match has already ended');
+    gameId = found.gameId;
+    roomCode = found.roomCode.replace(/^MM-/, '');
+  }
+
   const session = sessions.get(gameId);
-  if (!session) return null;
+  if (!session) throw new AppError('GAME_ENDED', 400, 'This match has already ended');
 
   const { players, gameState, moves } = session;
   const isPlayerX = players.X.id === socketUserId;
   const isPlayerO = players.O.id === socketUserId;
-  if (!isPlayerX && !isPlayerO) return null;
+  if (!isPlayerX && !isPlayerO) throw new ForbiddenError('You are not a player in this game');
 
   clearDisconnectTimer(socketUserId);
 
@@ -80,6 +106,7 @@ export function syncGame(gameId: string, socketUserId: string): GameSyncPayload 
 
   return {
     gameId,
+    roomCode,
     board: gameState.board,
     moves: moves.map((move) => `${move.player}:${move.row},${move.col}`),
     nextPlayer: gameState.currentPlayer,

@@ -8,6 +8,7 @@ import type {
   QueueTimeoutPayload,
 } from '@tacfinity/shared';
 import { useAuthStore } from '@/features/auth/store';
+import { toast } from '@/shared/lib/toast';
 import type { PlayerInfo, MatchStatus } from '../types';
 
 function buildPlayers(data: {
@@ -42,9 +43,13 @@ export function useGameSocket() {
     O: null,
   });
 
+  const [roomCode, setRoomCode] = useState<string | null>(null);
+
   const gameIdRef = useRef<string | null>(null);
+  const roomCodeRef = useRef<string | null>(null);
   const mySymbolRef = useRef<'X' | 'O' | null>(null);
   const matchStatusRef = useRef<MatchStatus>('idle');
+  const resumeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   function updateMatchStatus(status: MatchStatus): void {
     matchStatusRef.current = status;
@@ -66,6 +71,8 @@ export function useGameSocket() {
 
     socket.on('queue:matched', (data: MatchedPayload) => {
       gameIdRef.current = data.gameId;
+      roomCodeRef.current = data.roomCode;
+      setRoomCode(data.roomCode);
       mySymbolRef.current = data.yourSymbol;
       setMySymbol(data.yourSymbol);
       setPlayers(buildPlayers(data));
@@ -92,7 +99,13 @@ export function useGameSocket() {
     });
 
     socket.on('game:sync', (data: GameSyncPayload) => {
+      if (resumeTimeoutRef.current) {
+        clearTimeout(resumeTimeoutRef.current);
+        resumeTimeoutRef.current = null;
+      }
       gameIdRef.current = data.gameId;
+      roomCodeRef.current = data.roomCode;
+      setRoomCode(data.roomCode);
       mySymbolRef.current = data.yourSymbol;
       setMySymbol(data.yourSymbol);
       setBoard(data.board);
@@ -101,6 +114,23 @@ export function useGameSocket() {
       setPlayers(buildPlayers(data));
       setResult(null);
       updateMatchStatus('playing');
+    });
+
+    socket.on('game:error', (data) => {
+      if (matchStatusRef.current !== 'resuming') return;
+      if (resumeTimeoutRef.current) {
+        clearTimeout(resumeTimeoutRef.current);
+        resumeTimeoutRef.current = null;
+      }
+      if (data.error.code === 'GAME_ENDED') {
+        toast.info('That match has already ended.');
+      } else if (data.error.code === 'FORBIDDEN') {
+        toast.error("You're not a player in that match.");
+      } else {
+        toast.error('Could not rejoin match.');
+      }
+      socket.disconnect();
+      updateMatchStatus('idle');
     });
 
     socket.on('game:end', (data) => {
@@ -153,6 +183,7 @@ export function useGameSocket() {
       socket.off('game:update');
       socket.off('game:sync');
       socket.off('game:end');
+      socket.off('game:error');
       socket.off('game:draw-offered');
       socket.off('game:draw-declined');
     };
@@ -160,6 +191,29 @@ export function useGameSocket() {
 
   function resetToIdle(): void {
     updateMatchStatus('idle');
+    roomCodeRef.current = null;
+    setRoomCode(null);
+  }
+
+  function resumeFromCode(code: string): void {
+    updateMatchStatus('resuming');
+    socket.auth = { token: useAuthStore.getState().accessToken };
+
+    resumeTimeoutRef.current = setTimeout(() => {
+      if (matchStatusRef.current === 'resuming') {
+        toast.error('Could not rejoin match.');
+        socket.disconnect();
+        updateMatchStatus('idle');
+      }
+    }, 10_000);
+
+    const emit = () => socket.emit('game:sync', { roomCode: code });
+    if (socket.connected) {
+      emit();
+    } else {
+      socket.once('connect', emit);
+      socket.connect();
+    }
   }
 
   function joinQueue(): void {
@@ -203,6 +257,7 @@ export function useGameSocket() {
 
   return {
     matchStatus,
+    roomCode,
     board,
     mySymbol,
     activePlayer,
@@ -214,6 +269,7 @@ export function useGameSocket() {
     drawOfferPending,
     drawDeclined,
     resetToIdle,
+    resumeFromCode,
     joinQueue,
     cancelQueue,
     makeMove,

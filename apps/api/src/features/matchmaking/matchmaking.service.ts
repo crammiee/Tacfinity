@@ -37,7 +37,7 @@ function timeoutQueue(timeoutMs: number): void {
 }
 
 async function pair(s1: AuthedSocket, s2: AuthedSocket): Promise<void> {
-  const { gameId } = await gamesService.createGameSession(s1.data.user, s2.data.user);
+  const { gameId, roomCode } = await gamesService.createGameSession(s1.data.user, s2.data.user);
   const room = `game:${gameId}`;
 
   s1.join(room);
@@ -45,6 +45,7 @@ async function pair(s1: AuthedSocket, s2: AuthedSocket): Promise<void> {
 
   s1.emit('queue:matched', {
     gameId,
+    roomCode,
     yourSymbol: 'X',
     yourRating: s1.data.user.rating,
     opponentUsername: s2.data.user.username,
@@ -53,6 +54,7 @@ async function pair(s1: AuthedSocket, s2: AuthedSocket): Promise<void> {
 
   s2.emit('queue:matched', {
     gameId,
+    roomCode,
     yourSymbol: 'O',
     yourRating: s2.data.user.rating,
     opponentUsername: s1.data.user.username,

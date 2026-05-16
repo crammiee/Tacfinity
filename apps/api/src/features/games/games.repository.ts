@@ -1,5 +1,9 @@
-import { PlayerSymbol, RoomStatus, RoomType, type Prisma } from '@prisma/client';
+import { GameStatus, PlayerSymbol, RoomStatus, RoomType, type Prisma } from '@prisma/client';
 import { db } from '../../shared/db/index.js';
+
+function normalizeRoomCode(rawCode: string): string {
+  return `MM-${rawCode.replace(/^MM-/i, '').toUpperCase()}`;
+}
 
 async function generateUniqueRoomCode(tx: Prisma.TransactionClient): Promise<string> {
   for (;;) {
@@ -42,6 +46,37 @@ export const gamesRepository = {
 
       return { room, game };
     });
+  },
+
+  async findGameByRoomCode(
+    rawCode: string
+  ): Promise<{ gameId: string; gameStatus: GameStatus; roomCode: string } | null> {
+    const code = normalizeRoomCode(rawCode);
+    const room = await db.room.findUnique({
+      where: { code },
+      select: {
+        code: true,
+        games: {
+          orderBy: { startedAt: 'desc' },
+          take: 1,
+          select: { id: true, status: true },
+        },
+      },
+    });
+    const game = room?.games[0];
+    if (!room || !game) return null;
+    return { gameId: game.id, gameStatus: game.status, roomCode: room.code };
+  },
+
+  async findGameByGameId(
+    gameId: string
+  ): Promise<{ gameStatus: GameStatus; roomCode: string } | null> {
+    const game = await db.game.findUnique({
+      where: { id: gameId },
+      select: { status: true, room: { select: { code: true } } },
+    });
+    if (!game) return null;
+    return { gameStatus: game.status, roomCode: game.room.code };
   },
 
   async saveGameResult(opts: {

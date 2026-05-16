@@ -4,7 +4,7 @@ export interface ClientToServerEvents {
   'queue:join': () => void;
   'queue:cancel': () => void;
   'game:move': (payload: { gameId: string; row: number; col: number }) => void;
-  'game:sync': (payload: { gameId: string }) => void;
+  'game:sync': (payload: { gameId: string } | { roomCode: string }) => void;
   'game:resign': (payload: { gameId: string }) => void;
   'game:draw-offer': (payload: { gameId: string }) => void;
   'game:draw-response': (payload: { gameId: string; accepted: boolean }) => void;
@@ -23,6 +23,7 @@ export interface ServerToClientEvents {
 
 export interface MatchedPayload {
   gameId: string;
+  roomCode: string;
   yourSymbol: 'X' | 'O';
   yourRating: number;
   opponentUsername: string;
@@ -51,6 +52,7 @@ export interface GameErrorPayload {
 
 export interface GameSyncPayload {
   gameId: string;
+  roomCode: string;
   board: Cell[];
   moves: string[]; // TGN tokens e.g. ["X:0,0", "O:1,1"]
   nextPlayer: 'X' | 'O';
