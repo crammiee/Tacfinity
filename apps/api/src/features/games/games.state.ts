@@ -20,7 +20,7 @@ export type IoServer = Server<ClientToServerEvents, ServerToClientEvents>;
 export const sessions = new Map<string, GameSession>();
 export const disconnectTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
-export function clearDisconnectTimer(userId: string): void {
+function clearDisconnectTimer(userId: string): void {
   const timer = disconnectTimers.get(userId);
   if (timer) {
     clearTimeout(timer);
@@ -28,8 +28,13 @@ export function clearDisconnectTimer(userId: string): void {
   }
 }
 
-export function resolvePlayerSymbol(session: GameSession, socketUserId: string): Player {
+function resolvePlayerSymbol(session: GameSession, socketUserId: string): Player {
   if (session.players.X.id === socketUserId) return 'X';
   if (session.players.O.id === socketUserId) return 'O';
   throw new ValidationError('Player not in game');
 }
+
+export const gameStateUtils = {
+  clearDisconnectTimer,
+  resolvePlayerSymbol,
+};

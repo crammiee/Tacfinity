@@ -1,15 +1,15 @@
-import { createGameSession, syncGame, handlePlayerDisconnect } from './games.session.js';
-import { applyMove } from './games.moves.js';
-import { resignGame } from './games.end.js';
-import { offerDraw, acceptDraw, declineDraw } from './games.draw.js';
+import { gameSession } from './games.session.js';
+import { gameMoves } from './games.moves.js';
+import { gameEnd } from './games.end.js';
+import { gameDraw } from './games.draw.js';
 
 export const gamesService = {
-  createGameSession,
-  applyMove,
-  handlePlayerDisconnect,
-  syncGame,
-  resignGame,
-  offerDraw,
-  acceptDraw,
-  declineDraw,
+  createGameSession: gameSession.create,
+  applyMove: gameMoves.apply,
+  handlePlayerDisconnect: gameSession.handleDisconnect,
+  syncGame: gameSession.sync,
+  resignGame: gameEnd.resign,
+  offerDraw: gameDraw.offer,
+  acceptDraw: gameDraw.accept,
+  declineDraw: gameDraw.decline,
 };

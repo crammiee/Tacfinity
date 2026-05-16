@@ -7,12 +7,18 @@ import {
   type IoServer,
   sessions,
   disconnectTimers,
-  clearDisconnectTimer,
+  gameStateUtils,
 } from './games.state.js';
-import { endGame } from './games.end.js';
+import { gameEnd } from './games.end.js';
 import { AppError, ForbiddenError, NotFoundError } from '../../shared/errors/AppError.js';
 
-export async function createGameSession(
+export const gameSession = {
+  create: createGameSession,
+  handleDisconnect: handlePlayerDisconnect,
+  sync: syncGame,
+};
+
+async function createGameSession(
   xUser: User,
   oUser: User
 ): Promise<{ gameId: string; roomCode: string }> {
@@ -46,7 +52,7 @@ export async function createGameSession(
   return { gameId: game.id, roomCode: room.code.replace(/^MM-/, '') };
 }
 
-export async function handlePlayerDisconnect(socketUserId: string, io: IoServer): Promise<void> {
+async function handlePlayerDisconnect(socketUserId: string, io: IoServer): Promise<void> {
   for (const [, session] of sessions) {
     const { players, gameId } = session;
     if (players.X.id !== socketUserId && players.O.id !== socketUserId) continue;
@@ -57,7 +63,7 @@ export async function handlePlayerDisconnect(socketUserId: string, io: IoServer)
     const timer = setTimeout(() => {
       disconnectTimers.delete(socketUserId);
       if (sessions.has(gameId)) {
-        void endGame(session, winner, io).catch((err: unknown) => {
+        void gameEnd.end(session, winner, io).catch((err: unknown) => {
           logger.error({ err }, 'forfeit endGame failed');
         });
       }
@@ -68,7 +74,7 @@ export async function handlePlayerDisconnect(socketUserId: string, io: IoServer)
   }
 }
 
-export async function syncGame(
+async function syncGame(
   identifier: { gameId: string } | { roomCode: string },
   socketUserId: string
 ): Promise<GameSyncPayload> {
@@ -99,7 +105,7 @@ export async function syncGame(
   const isPlayerO = players.O.id === socketUserId;
   if (!isPlayerX && !isPlayerO) throw new ForbiddenError('You are not a player in this game');
 
-  clearDisconnectTimer(socketUserId);
+  gameStateUtils.clearDisconnectTimer(socketUserId);
 
   const yourSymbol: Player = isPlayerX ? 'X' : 'O';
   const opponent = isPlayerX ? players.O : players.X;

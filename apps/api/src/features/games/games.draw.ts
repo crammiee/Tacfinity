@@ -1,7 +1,13 @@
 import { type IoServer, sessions } from './games.state.js';
-import { endGame } from './games.end.js';
+import { gameEnd } from './games.end.js';
 
-export function offerDraw(gameId: string, socketUserId: string): boolean {
+export const gameDraw = {
+  offer: offerDraw,
+  accept: acceptDraw,
+  decline: declineDraw,
+};
+
+function offerDraw(gameId: string, socketUserId: string): boolean {
   const session = sessions.get(gameId);
   if (!session) return false;
 
@@ -12,21 +18,17 @@ export function offerDraw(gameId: string, socketUserId: string): boolean {
   return true;
 }
 
-export async function acceptDraw(
-  gameId: string,
-  socketUserId: string,
-  io: IoServer
-): Promise<boolean> {
+async function acceptDraw(gameId: string, socketUserId: string, io: IoServer): Promise<boolean> {
   const session = sessions.get(gameId);
   if (!session?.pendingDrawOfferId) return false;
   if (session.pendingDrawOfferId === socketUserId) return false;
 
   session.pendingDrawOfferId = null;
-  await endGame(session, null, io);
+  await gameEnd.end(session, null, io);
   return true;
 }
 
-export function declineDraw(gameId: string, socketUserId: string): boolean {
+function declineDraw(gameId: string, socketUserId: string): boolean {
   const session = sessions.get(gameId);
   if (!session?.pendingDrawOfferId) return false;
   if (session.pendingDrawOfferId === socketUserId) return false;

@@ -3,38 +3,14 @@ import { serializeGame, calculateElo, calculateDrawElo, type Player } from '@tac
 import { ValidationError } from '../../shared/errors/AppError.js';
 import { gamesRepository } from './games.repository.js';
 import { leaderboardService } from '../leaderboard/leaderboard.service.js';
-import {
-  type GameSession,
-  type IoServer,
-  sessions,
-  clearDisconnectTimer,
-  resolvePlayerSymbol,
-} from './games.state.js';
+import { type GameSession, type IoServer, sessions, gameStateUtils } from './games.state.js';
 
-function computeEloDeltas(
-  players: { X: User; O: User },
-  winner: Player | null
-): { xAfter: number; oAfter: number } {
-  const xBefore = players.X.rating;
-  const oBefore = players.O.rating;
+export const gameEnd = {
+  end: endGame,
+  resign: resignGame,
+};
 
-  if (winner === 'X') {
-    const eloResult = calculateElo(xBefore, oBefore);
-    return { xAfter: eloResult.newWinner, oAfter: eloResult.newLoser };
-  }
-  if (winner === 'O') {
-    const eloResult = calculateElo(oBefore, xBefore);
-    return { xAfter: eloResult.newLoser, oAfter: eloResult.newWinner };
-  }
-  const eloResult = calculateDrawElo(xBefore, oBefore);
-  return { xAfter: eloResult.newA, oAfter: eloResult.newB };
-}
-
-export async function endGame(
-  session: GameSession,
-  winner: Player | null,
-  io: IoServer
-): Promise<void> {
+async function endGame(session: GameSession, winner: Player | null, io: IoServer): Promise<void> {
   const { gameId, players, moves } = session;
   const { xAfter, oAfter } = computeEloDeltas(players, winner);
 
@@ -56,20 +32,35 @@ export async function endGame(
     ratingDelta: { X: xAfter - players.X.rating, O: oAfter - players.O.rating },
   });
 
-  clearDisconnectTimer(players.X.id);
-  clearDisconnectTimer(players.O.id);
+  gameStateUtils.clearDisconnectTimer(players.X.id);
+  gameStateUtils.clearDisconnectTimer(players.O.id);
   sessions.delete(gameId);
 }
 
-export async function resignGame(
-  gameId: string,
-  socketUserId: string,
-  io: IoServer
-): Promise<void> {
+async function resignGame(gameId: string, socketUserId: string, io: IoServer): Promise<void> {
   const session = sessions.get(gameId);
   if (!session) throw new ValidationError('Game session not found');
 
-  const resigningSymbol = resolvePlayerSymbol(session, socketUserId);
+  const resigningSymbol = gameStateUtils.resolvePlayerSymbol(session, socketUserId);
   const winner: Player = resigningSymbol === 'X' ? 'O' : 'X';
   await endGame(session, winner, io);
+}
+
+function computeEloDeltas(
+  players: { X: User; O: User },
+  winner: Player | null
+): { xAfter: number; oAfter: number } {
+  const xBefore = players.X.rating;
+  const oBefore = players.O.rating;
+
+  if (winner === 'X') {
+    const eloResult = calculateElo(xBefore, oBefore);
+    return { xAfter: eloResult.newWinner, oAfter: eloResult.newLoser };
+  }
+  if (winner === 'O') {
+    const eloResult = calculateElo(oBefore, xBefore);
+    return { xAfter: eloResult.newLoser, oAfter: eloResult.newWinner };
+  }
+  const eloResult = calculateDrawElo(xBefore, oBefore);
+  return { xAfter: eloResult.newA, oAfter: eloResult.newB };
 }

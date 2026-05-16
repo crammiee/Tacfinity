@@ -1,33 +1,13 @@
 import { type Player } from '@tacfinity/shared';
 import { ValidationError } from '../../shared/errors/AppError.js';
-import { type GameSession, type IoServer, sessions, resolvePlayerSymbol } from './games.state.js';
-import { endGame } from './games.end.js';
+import { type GameSession, type IoServer, sessions, gameStateUtils } from './games.state.js';
+import { gameEnd } from './games.end.js';
 
-async function checkAndResolveOutcome(
-  session: GameSession,
-  playerSymbol: Player,
-  io: IoServer
-): Promise<boolean> {
-  const { gameState, winDetector } = session;
-  const winningCells = winDetector.checkWin(
-    gameState.board,
-    playerSymbol,
-    gameState.winLen,
-    gameState.cols,
-    gameState.rows
-  );
-  if (winningCells) {
-    await endGame(session, playerSymbol, io);
-    return true;
-  }
-  if (winDetector.isDraw(gameState.board)) {
-    await endGame(session, null, io);
-    return true;
-  }
-  return false;
-}
+export const gameMoves = {
+  apply: applyMove,
+};
 
-export async function applyMove(
+async function applyMove(
   gameId: string,
   socketUserId: string,
   row: number,
@@ -38,7 +18,7 @@ export async function applyMove(
   if (!session) throw new ValidationError('Game session not found');
 
   const { gameState, moves } = session;
-  const playerSymbol = resolvePlayerSymbol(session, socketUserId);
+  const playerSymbol = gameStateUtils.resolvePlayerSymbol(session, socketUserId);
 
   if (gameState.currentPlayer !== playerSymbol) throw new ValidationError('Not your turn');
   if (row < 0 || row >= gameState.rows || col < 0 || col >= gameState.cols)
@@ -59,4 +39,28 @@ export async function applyMove(
     tgnToken: `${playerSymbol}:${row},${col}`,
     nextPlayer: gameState.currentPlayer,
   });
+}
+
+async function checkAndResolveOutcome(
+  session: GameSession,
+  playerSymbol: Player,
+  io: IoServer
+): Promise<boolean> {
+  const { gameState, winDetector } = session;
+  const winningCells = winDetector.checkWin(
+    gameState.board,
+    playerSymbol,
+    gameState.winLen,
+    gameState.cols,
+    gameState.rows
+  );
+  if (winningCells) {
+    await gameEnd.end(session, playerSymbol, io);
+    return true;
+  }
+  if (winDetector.isDraw(gameState.board)) {
+    await gameEnd.end(session, null, io);
+    return true;
+  }
+  return false;
 }
